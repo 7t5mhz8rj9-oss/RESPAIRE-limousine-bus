@@ -9,6 +9,22 @@ main{max-width:720px;margin:auto;padding:12px 12px 80px}.section{font-weight:900
 .actions{display:flex;gap:7px;margin-top:10px}.action{border:0;border-radius:10px;padding:10px;font-weight:800;background:#eceef1}.arrive{flex:1;background:#111;color:#fff}.actual{font-size:14px;font-weight:800;margin-top:8px}.memoFlag{font-size:12px;margin-top:5px}.doneCard{display:none}
 .box{background:#fff;border-radius:16px;padding:14px;border:1px solid #e3e3e3;margin:9px 0}input,select,textarea{width:100%;padding:10px;margin:5px 0;border:1px solid #ccc;border-radius:10px;font:inherit}textarea{min-height:70px}
 dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{background:#0008}.save{border:0;border-radius:10px;padding:11px;background:#111;color:#fff;font-weight:800}.empty{color:#777;text-align:center;padding:25px}
+
+/* 会社ごとの視覚化 */
+.card.company-kankuu{box-shadow:inset 6px 0 0 #1976d2;}
+.card.company-hankyu{box-shadow:inset 6px 0 0 #8d6e63;}
+.card.company-hanshin{box-shadow:inset 6px 0 0 #f2c94c;}
+.card.company-kankuu .route b,
+.card.company-hankyu .route b,
+.card.company-hanshin .route b{
+  display:inline-block;
+  padding:2px 7px;
+  border-radius:7px;
+  margin-bottom:2px;
+}
+.card.company-kankuu .route b{background:#e3f2fd;color:#0d47a1;}
+.card.company-hankyu .route b{background:#efebe9;color:#5d4037;}
+.card.company-hanshin .route b{background:#fff8d6;color:#6b5600;}
 </style></head><body>
 <header><h1>🚌 レスパイア バス管理</h1><div class="tabs">
 <button id="pbtn" class="active" onclick="showTab('pending')">未到着 <span id="pc">59</span></button>
@@ -885,6 +901,17 @@ const isoLocal=(d=new Date())=>{let y=d.getFullYear(),m=String(d.getMonth()+1).p
 let currentDate=isoLocal(), S=blank(), tab='pending', target=null;
 const now=()=>new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
 
+
+function applyCompanyColors(){
+  document.querySelectorAll('.card[id^="bus-"]').forEach(card=>{
+    card.classList.remove('company-kankuu','company-hankyu','company-hanshin');
+    const company=(card.querySelector('.route b')?.textContent||'').trim();
+    if(company.includes('関西空港交通')) card.classList.add('company-kankuu');
+    else if(company.includes('阪急')) card.classList.add('company-hankyu');
+    else if(company.includes('阪神')) card.classList.add('company-hanshin');
+  });
+}
+
 function showStatus(msg, bad=false){
   let el=document.getElementById('firebaseStatus');
   if(!el){
@@ -999,6 +1026,7 @@ function renderExtras(){
     showStatus('🔐 匿名認証OK・Firebase接続中…');
     await seedTimetable();
     await loadDay();
+    applyCompanyColors();
   }catch(e){fail(e)}
 })();
 </script></body></html>
