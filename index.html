@@ -962,8 +962,33 @@ if(ha)ha.textContent=S.highway?'✓ 到着タップ時刻 '+S.highway:'';
 if(hb)hb.textContent=S.highway?'到着を取り消す':'到着';
 if(hm)hm.textContent=S.highwayMemo?'📝 メモあり':'';
 }
-async function addExtra(){let t=document.getElementById('etime').value,n=document.getElementById('ename').value.trim();if(!t||!n)return alert('時刻と会社名を入れてな');S.extras.push({type:document.getElementById('etype').value,time:t,name:n,note:document.getElementById('enote').value});renderExtras();await save()}
-function renderExtras(){document.getElementById('extras').innerHTML=(S.extras||[]).map(x=>'<div class="card"><div class="arrival">'+x.time+' <small>'+x.type+'</small></div><div class="route"><b>'+x.name+'</b><br>'+x.note+'</div></div>').join('')}
+async function addExtra(){let t=document.getElementById('etime').value,n=document.getElementById('ename').value.trim();if(!t||!n)return alert('時刻と会社名を入れてな');S.extras.push({type:document.getElementById('etype').value,time:t,name:n,note:document.getElementById('enote').value,arrivedAt:null});renderExtras();await save()}
+async function toggleExtra(i){
+  if(!S.extras||!S.extras[i])return;
+  S.extras[i].arrivedAt=S.extras[i].arrivedAt?null:now();
+  renderExtras();
+  await save();
+}
+async function deleteExtra(i){
+  if(!S.extras||!S.extras[i])return;
+  if(!confirm('この予約・ツアーを削除する？'))return;
+  S.extras.splice(i,1);
+  renderExtras();
+  await save();
+}
+function renderExtras(){
+  document.getElementById('extras').innerHTML=(S.extras||[]).map((x,i)=>
+    '<div class="card">'+
+      '<div class="arrival">'+x.time+' <small>'+x.type+'</small></div>'+
+      '<div class="route"><b>'+x.name+'</b><br>'+(x.note||'')+'</div>'+
+      '<div class="actual">'+(x.arrivedAt?'✓ 到着タップ時刻 '+x.arrivedAt:'')+'</div>'+
+      '<div class="actions">'+
+        '<button class="action arrive" onclick="toggleExtra('+i+')">'+(x.arrivedAt?'未到着に戻す':'到着')+'</button>'+
+        '<button class="action" onclick="deleteExtra('+i+')">削除</button>'+
+      '</div>'+
+    '</div>'
+  ).join('');
+}
 
 (async()=>{
   try{
