@@ -864,6 +864,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <dialog id="memo"><h3 id="mtitle">メモ</h3><textarea id="mtext"></textarea><button class="save" onclick="saveMemo()">保存</button> <button class="action" onclick="document.getElementById('memo').close()">閉じる</button></dialog>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAkXlDYyrQBuQE4Q6CSnc05NyN4xeDxROI",
@@ -876,6 +877,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.firestore();
 const KEY='respaire-daily-v1';
 const blank=()=>({done:{},memo:{},extras:[],highway:null,highwayMemo:''});
@@ -965,7 +967,11 @@ function renderExtras(){document.getElementById('extras').innerHTML=(S.extras||[
 
 (async()=>{
   try{
-    showStatus('☁️ Firebase接続中…');
+    showStatus('🔐 Firebase認証中…');
+    if(!auth.currentUser){
+      await auth.signInAnonymously();
+    }
+    showStatus('🔐 匿名認証OK・Firebase接続中…');
     await seedTimetable();
     await loadDay();
   }catch(e){fail(e)}
