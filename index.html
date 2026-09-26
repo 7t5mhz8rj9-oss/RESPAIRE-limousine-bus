@@ -19,7 +19,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <button class="action" onclick="changeDay(1)">翌日 ▶</button>
 </div></header>
 <main>
-<div class="box" style="font-size:13px"><b>📅 日別保存</b><br>到着時刻・メモ・キラキラ号・予約/ツアーバスは、上の日付ごとにこの端末へ保存されます。</div>
+<div class="box" style="font-size:13px"><b>📅 日別保存</b><br>到着時刻・メモ・キラキラ号・予約/ツアーバスは、上の日付ごとにクラウドへ保存されます。</div>
 <div class="section">リムジンバス　59便</div>
 <div id="busList">
 <div class="card busTap" id="bus-1" onclick="cardTap(event,1">
@@ -877,22 +877,33 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
 const KEY='respaire-daily-v1';
 const blank=()=>({done:{},memo:{},extras:[],highway:null,highwayMemo:''});
 const isoLocal=(d=new Date())=>{let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
 let currentDate=isoLocal(), S=blank(), tab='pending', target=null;
 const now=()=>new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
 
-function firebaseError(e){
+function showStatus(msg, bad=false){
+  let el=document.getElementById('firebaseStatus');
+  if(!el){
+    el=document.createElement('div');
+    el.id='firebaseStatus';
+    el.style.cssText='margin:8px 12px;padding:9px 11px;border-radius:10px;font-size:13px;font-weight:800;background:#e8f5e9;color:#176b2c';
+    document.querySelector('main').prepend(el);
+  }
+  el.style.background=bad?'#ffebee':'#e8f5e9';
+  el.style.color=bad?'#b71c1c':'#176b2c';
+  el.textContent=msg;
+}
+function fail(e){
   console.error(e);
-  alert('Firebaseエラー: ' + (e && e.message ? e.message : e));
+  showStatus('⚠️ Firebaseエラー: '+(e?.message||e),true);
 }
 
 async function seedTimetable(){
   const ref=db.collection('timetable').doc('weekday');
-  const existing=await ref.get();
-  if(existing.exists) return;
+  const snap=await ref.get();
+  if(snap.exists) return;
   const buses=[];
   for(let i=1;i<=59;i++){
     const card=document.getElementById('bus-'+i);
@@ -905,7 +916,14 @@ async function seedTimetable(){
     const harbis=(txt.match(/ハービス大阪\s+([0-9:]+)着/)||[])[1]||'';
     buses.push({number:i,company,t2,t1,respaire:arrival,harbis});
   }
-  await ref.set({dayType:'weekday',buses,updatedAt:new Date().toISOString()});
+  await ref.set({dayType:'weekday',buses,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+}
+
+async function save(){
+  try{
+    await db.collection('dailyStates').doc(currentDate).set(S);
+    showStatus('☁️ Firebase保存OK');
+  }catch(e){fail(e); throw e;}
 }
 
 async function loadDay(){
@@ -913,39 +931,43 @@ async function loadDay(){
   try{
     const ref=db.collection('dailyStates').doc(currentDate);
     const snap=await ref.get();
-    if(snap.exists) S=Object.assign(blank(),snap.data());
-    else {
-      let old={}; try{old=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}
+    if(snap.exists){
+      S=Object.assign(blank(),snap.data());
+    }else{
+      let old={};
+      try{old=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}
       S=Object.assign(blank(),old[currentDate]||{});
-      await ref.set(S); // 空の日でも必ずFirestoreに作成して接続確認できるようにする
+      await ref.set(S);
     }
-  }catch(e){firebaseError(e)}
-  refresh();renderExtras();
+    showStatus('☁️ Firebase接続OK');
+  }catch(e){fail(e)}
+  refresh(); renderExtras();
 }
-async function save(){
-  try{
-    await db.collection('dailyStates').doc(currentDate).set(S);
-  }catch(e){firebaseError(e)}
-}
+
 async function switchDate(v){if(!v)return;currentDate=v;await loadDay()}
 async function changeDay(n){let d=new Date(currentDate+'T12:00:00');d.setDate(d.getDate()+n);currentDate=isoLocal(d);await loadDay()}
 function cardTap(e,id){if(e.target.closest('button,textarea,input,select'))return;toggleBus(id)}
-async function toggleBus(id){if(S.done[id])delete S.done[id];else S.done[id]=now();await save();refresh()}
-async function toggleHighway(){S.highway=S.highway?null:now();await save();refresh()}
+async function toggleBus(id){if(S.done[id])delete S.done[id];else S.done[id]=now();refresh();await save()}
+async function toggleHighway(){S.highway=S.highway?null:now();refresh();await save()}
 function editHighwayMemo(){target='highway';document.getElementById('mtitle').textContent='KR124便 キラキラ号 メモ';document.getElementById('mtext').value=S.highwayMemo||'';document.getElementById('memo').showModal()}
 function editMemo(id){target=id;document.getElementById('mtitle').textContent=id+'便 メモ';document.getElementById('mtext').value=S.memo[id]||'';document.getElementById('memo').showModal()}
-async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;await save();document.getElementById('memo').close();refresh()}
+async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
 function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display=t==='pending'?'block':'none';refresh()}
 function refresh(){let done=Object.keys(S.done||{}).length;document.getElementById('pc').textContent=59-done;document.getElementById('dc').textContent=done;
 for(let i=1;i<=59;i++){let el=document.getElementById('bus-'+i),d=S.done[i];el.style.display=(tab==='done'?!!d:!d)?'block':'none';document.getElementById('actual-'+i).textContent=d?'✓ 到着タップ時刻 '+d:'';document.getElementById('memoFlag-'+i).textContent=S.memo[i]?'📝 メモあり':'';document.getElementById('arrive-'+i).textContent=d?'未到着に戻す':'到着'}
-let ha=document.getElementById('highwayActual'),hb=document.getElementById('highwayBtn'),hm=document.getElementById('highwayMemoFlag');if(ha)ha.textContent=S.highway?'✓ 到着タップ時刻 '+S.highway:'';if(hb)hb.textContent=S.highway?'到着を取り消す':'到着';if(hm)hm.textContent=S.highwayMemo?'📝 メモあり':'';}
-async function addExtra(){let t=document.getElementById('etime').value,n=document.getElementById('ename').value.trim();if(!t||!n)return alert('時刻と会社名を入れてな');S.extras.push({type:document.getElementById('etype').value,time:t,name:n,note:document.getElementById('enote').value});await save();renderExtras()}
+let ha=document.getElementById('highwayActual'),hb=document.getElementById('highwayBtn'),hm=document.getElementById('highwayMemoFlag');
+if(ha)ha.textContent=S.highway?'✓ 到着タップ時刻 '+S.highway:'';
+if(hb)hb.textContent=S.highway?'到着を取り消す':'到着';
+if(hm)hm.textContent=S.highwayMemo?'📝 メモあり':'';
+}
+async function addExtra(){let t=document.getElementById('etime').value,n=document.getElementById('ename').value.trim();if(!t||!n)return alert('時刻と会社名を入れてな');S.extras.push({type:document.getElementById('etype').value,time:t,name:n,note:document.getElementById('enote').value});renderExtras();await save()}
 function renderExtras(){document.getElementById('extras').innerHTML=(S.extras||[]).map(x=>'<div class="card"><div class="arrival">'+x.time+' <small>'+x.type+'</small></div><div class="route"><b>'+x.name+'</b><br>'+x.note+'</div></div>').join('')}
 
 (async()=>{
   try{
+    showStatus('☁️ Firebase接続中…');
     await seedTimetable();
     await loadDay();
-  }catch(e){firebaseError(e)}
+  }catch(e){fail(e)}
 })();
 </script></body></html>
