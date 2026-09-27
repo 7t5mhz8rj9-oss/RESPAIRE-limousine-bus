@@ -915,7 +915,15 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <div class="box"><select id="etype"><option>予約バス</option><option>ツアーバス</option></select><input id="etime" type="time"><input id="ename" placeholder="会社名・団体名"><textarea id="enote" placeholder="メモ"></textarea><button class="save" onclick="addExtra()">＋追加</button></div><div id="extras"></div>
 </div>
 </main>
-<dialog id="memo"><h3 id="mtitle">メモ</h3><textarea id="mtext"></textarea><button class="save" onclick="saveMemo()">保存</button> <button class="action" onclick="document.getElementById('memo').close()">閉じる</button></dialog>
+<dialog id="memo"><h3 id="mtitle">メモ</h3><textarea id="mtext"></textarea>
+<div style="margin:12px 0">
+<input id="ticketPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="saveTicketPhoto(this)">
+<button class="action" type="button" onclick="document.getElementById('ticketPhotoInput').click()">📷 半券を撮影</button>
+<button class="action" id="ticketPhotoDelete" type="button" onclick="deleteTicketPhoto()" style="display:none">写真を削除</button>
+<div id="ticketPhotoStatus" style="font-size:13px;margin-top:8px"></div>
+<img id="ticketPhotoPreview" alt="半券写真" style="display:none;width:100%;max-height:320px;object-fit:contain;margin-top:8px;border-radius:10px;border:1px solid #ddd">
+</div>
+<button class="save" onclick="saveMemo()">保存</button> <button class="action" onclick="document.getElementById('memo').close()">閉じる</button></dialog>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth-compat.js"></script>
@@ -1020,12 +1028,78 @@ async function toggleBus(id){if(S.done[id])delete S.done[id];else S.done[id]=now
 async function toggleHighway(){S.highway=S.highway?null:now();refresh();await save()}
 async function toggleLimon(){S.limon=S.limon?null:now();refresh();await save()}
 async function toggleKirakira123(){S.kirakira123=S.kirakira123?null:now();refresh();await save()}
-function editHighwayMemo(){target='highway';document.getElementById('mtitle').textContent='KR124便 キラキラ号 メモ';document.getElementById('mtext').value=S.highwayMemo||'';document.getElementById('memo').showModal()}
-function editLimonMemo(){target='limon';document.getElementById('mtitle').textContent='LIMON Bus メモ';document.getElementById('mtext').value=S.limonMemo||'';document.getElementById('memo').showModal()}
-function editKirakira123Memo(){target='kirakira123';document.getElementById('mtitle').textContent='KR123便 キラキラ号 メモ';document.getElementById('mtext').value=S.kirakira123Memo||'';document.getElementById('memo').showModal()}
-function editMemo(id){target=id;document.getElementById('mtitle').textContent=id+'便 メモ';document.getElementById('mtext').value=S.memo[id]||'';document.getElementById('memo').showModal()}
+function editHighwayMemo(){target='highway';document.getElementById('mtitle').textContent='KR124便 キラキラ号 メモ';document.getElementById('mtext').value=S.highwayMemo||'';loadTicketPhoto();document.getElementById('memo').showModal()}
+function editLimonMemo(){target='limon';document.getElementById('mtitle').textContent='LIMON Bus メモ';document.getElementById('mtext').value=S.limonMemo||'';loadTicketPhoto();document.getElementById('memo').showModal()}
+function editKirakira123Memo(){target='kirakira123';document.getElementById('mtitle').textContent='KR123便 キラキラ号 メモ';document.getElementById('mtext').value=S.kirakira123Memo||'';loadTicketPhoto();document.getElementById('memo').showModal()}
+function editMemo(id){target=id;document.getElementById('mtitle').textContent=id+'便 メモ';document.getElementById('mtext').value=S.memo[id]||'';loadTicketPhoto();document.getElementById('memo').showModal()}
+
+function ticketPhotoDoc(){
+  return db.collection('ticketPhotos').doc(currentDate+'_'+String(target));
+}
+async function loadTicketPhoto(){
+  const img=document.getElementById('ticketPhotoPreview'),del=document.getElementById('ticketPhotoDelete'),st=document.getElementById('ticketPhotoStatus');
+  img.style.display='none';img.removeAttribute('src');del.style.display='none';st.textContent='';
+  try{
+    const snap=await ticketPhotoDoc().get();
+    if(!snap.exists)return;
+    const data=snap.data();
+    if(data.image){
+      img.src=data.image;img.style.display='block';del.style.display='inline-block';st.textContent='📷 半券写真あり';
+    }
+  }catch(e){console.error(e);st.textContent='写真を読み込めませんでした';}
+}
+async function photoToSmallJpeg(file){
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  await new Promise((ok,bad)=>{img.onload=ok;img.onerror=bad;img.src=url});
+  const maxW=900,maxH=1200,scale=Math.min(1,maxW/img.width,maxH/img.height);
+  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+  return c.toDataURL('image/jpeg',0.58);
+}
+async function saveTicketPhoto(input){
+  const file=input.files&&input.files[0];if(!file||!target)return;
+  const st=document.getElementById('ticketPhotoStatus');st.textContent='写真を圧縮して保存中…';
+  try{
+    let image=await photoToSmallJpeg(file);
+    // If still large, recompress once more.
+    if(image.length>700000){
+      const im=new Image();await new Promise((ok,bad)=>{im.onload=ok;im.onerror=bad;im.src=image});
+      const c=document.createElement('canvas');const s=Math.min(1,700/im.width,950/im.height);
+      c.width=Math.max(1,Math.round(im.width*s));c.height=Math.max(1,Math.round(im.height*s));c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      image=c.toDataURL('image/jpeg',0.48);
+    }
+    if(image.length>850000)throw new Error('photo too large');
+    await ticketPhotoDoc().set({date:currentDate,bus:String(target),image:image,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    st.textContent='✅ 半券写真を保存しました';await loadTicketPhoto();refresh();
+  }catch(e){console.error(e);st.textContent='⚠️ 写真を保存できませんでした。もう一度撮ってみてな。';}
+  input.value='';
+}
+async function deleteTicketPhoto(){
+  if(!target)return;if(!confirm('この半券写真を削除する？'))return;
+  try{await ticketPhotoDoc().delete();await loadTicketPhoto();refresh()}catch(e){console.error(e)}
+}
+async function hasTicketPhoto(t){
+  try{return (await db.collection('ticketPhotos').doc(currentDate+'_'+String(t)).get()).exists}catch(e){return false}
+}
 async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else if(target==='limon')S.limonMemo=document.getElementById('mtext').value;else if(target==='kirakira123')S.kirakira123Memo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
 function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display=t==='pending'?'block':'none';refresh()}
+
+async function updatePhotoFlags(){
+  try{
+    const snap=await db.collection('ticketPhotos').where('date','==',currentDate).get();
+    const set=new Set();snap.forEach(d=>set.add(String(d.data().bus)));
+    document.querySelectorAll('[id^="memoFlag-"]').forEach(el=>{
+      const id=el.id.replace('memoFlag-','');
+      el.dataset.photo=set.has(id)?'1':'0';
+      const base=(S.memo&&S.memo[id])?'📝 メモあり':'';
+      el.textContent=base+(set.has(id)?(base?'  ':'')+'📷 半券写真あり':'');
+    });
+    [['highway','highwayMemoFlag',S.highwayMemo],['limon','limonMemoFlag',S.limonMemo],['kirakira123','kirakira123MemoFlag',S.kirakira123Memo]].forEach(([id,eid,memo])=>{
+      const el=document.getElementById(eid);if(el){const base=memo?'📝 メモあり':'';el.textContent=base+(set.has(id)?(base?'  ':'')+'📷 半券写真あり':'');}
+    });
+  }catch(e){console.warn(e)}
+}
 function refresh(){let done=Object.keys(S.done||{}).length;document.getElementById('pc').textContent=59-done;document.getElementById('dc').textContent=done;
 for(let i=1;i<=59;i++){let el=document.getElementById('bus-'+i),d=S.done[i];el.style.display=(tab==='done'?!!d:!d)?'block':'none';document.getElementById('actual-'+i).textContent=d?'✓ 到着タップ時刻 '+d:'';document.getElementById('memoFlag-'+i).textContent=S.memo[i]?'📝 メモあり':'';document.getElementById('arrive-'+i).textContent=d?'未到着に戻す':'到着'}
 let ha=document.getElementById('highwayActual'),hb=document.getElementById('highwayBtn'),hm=document.getElementById('highwayMemoFlag');
@@ -1054,7 +1128,8 @@ async function deleteExtra(i){
   S.extras.splice(i,1);
   renderExtras();
   await save();
-}
+
+updatePhotoFlags();}
 function renderExtras(){
   document.getElementById('extras').innerHTML=(S.extras||[]).map((x,i)=>
     '<div class="card">'+
