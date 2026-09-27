@@ -951,6 +951,7 @@ const KEY='respaire-daily-v1';
 const blank=()=>({done:{},memo:{},extras:[],highway:null,highwayMemo:'',limon:null,limonMemo:'',kirakira123:null,kirakira123Memo:''});
 const isoLocal=(d=new Date())=>{let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
 let currentDate=isoLocal(), S=blank(), tab='pending', target=null;
+let photoUnsubscribe=null;
 const now=()=>new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
 
 
@@ -1007,26 +1008,30 @@ async function save(){
   }catch(e){fail(e); throw e;}
 }
 
+let dayUnsubscribe=null;
 async function loadDay(){
   document.getElementById('workDate').value=currentDate;
+  if(dayUnsubscribe){dayUnsubscribe();dayUnsubscribe=null;}
+  const listeningDate=currentDate;
   try{
-    const ref=db.collection('dailyStates').doc(currentDate);
+    const ref=db.collection('dailyStates').doc(listeningDate);
     const snap=await ref.get();
-    if(snap.exists){
-      S=Object.assign(blank(),snap.data());
-    }else{
+    if(!snap.exists){
       let old={};
       try{old=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}
-      S=Object.assign(blank(),old[currentDate]||{});
-      await ref.set(S);
+      await ref.set(Object.assign(blank(),old[listeningDate]||{}));
     }
-    showStatus('☁️ Firebase接続OK');
+    dayUnsubscribe=ref.onSnapshot(s=>{
+      if(currentDate!==listeningDate)return;
+      if(s.exists)S=Object.assign(blank(),s.data());
+      showStatus('🟢 リアルタイム同期中');
+      refresh();renderExtras();
+    },e=>fail(e));
   }catch(e){fail(e)}
-  refresh(); renderExtras();
 }
 
-async function switchDate(v){if(!v)return;currentDate=v;await loadDay()}
-async function changeDay(n){let d=new Date(currentDate+'T12:00:00');d.setDate(d.getDate()+n);currentDate=isoLocal(d);await loadDay()}
+async function switchDate(v){if(!v)return;currentDate=v;startPhotoRealtime();await loadDay()}
+async function changeDay(n){let d=new Date(currentDate+'T12:00:00');d.setDate(d.getDate()+n);currentDate=isoLocal(d);startPhotoRealtime();await loadDay()}
 function cardTap(e,id){if(e.target.closest('button,textarea,input,select'))return;toggleBus(id)}
 async function toggleBus(id){if(S.done[id])delete S.done[id];else S.done[id]=now();refresh();await save()}
 async function toggleHighway(){S.highway=S.highway?null:now();refresh();await save()}
@@ -1094,6 +1099,11 @@ async function hasTicketPhoto(t){
 async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else if(target==='limon')S.limonMemo=document.getElementById('mtext').value;else if(target==='kirakira123')S.kirakira123Memo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
 function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display=t==='pending'?'block':'none';refresh()}
 
+function startPhotoRealtime(){
+  if(photoUnsubscribe){photoUnsubscribe();photoUnsubscribe=null;}
+  const d=currentDate;
+  photoUnsubscribe=db.collection('ticketPhotos').where('date','==',d).onSnapshot(()=>{if(currentDate===d)updatePhotoFlags()},e=>console.warn(e));
+}
 async function updatePhotoFlags(){
   try{
     const snap=await db.collection('ticketPhotos').where('date','==',currentDate).get();
@@ -1177,6 +1187,7 @@ async function startStaffApp(user){
   document.getElementById('appRoot').style.display='block';
   showStatus('🔐 スタッフ認証OK・Firebase接続中…');
   await seedTimetable();
+  startPhotoRealtime();
   await loadDay();
   applyCompanyColors();
 }
