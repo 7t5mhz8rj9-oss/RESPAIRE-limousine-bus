@@ -38,6 +38,9 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 #loginScreen button{width:100%;margin-top:10px;padding:12px;font-size:16px;font-weight:800;border:0;border-radius:10px}
 #loginError{color:#b00020;font-size:13px;margin-top:9px}
 #appRoot{display:none}
+
+#kirakira123Card{box-shadow:inset 6px 0 0 #e53935;}
+#kirakira123Card .route b{display:inline-block;padding:2px 7px;border-radius:7px;background:#ffebee;color:#b71c1c;}
 </style></head><body>
 <div id="loginScreen">
   <h2>🔐 スタッフログイン</h2>
@@ -902,6 +905,12 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <div class="actions"><button class="action arrive" id="limonBtn" onclick="event.stopPropagation();toggleLimon()">到着</button>
 <button class="action" onclick="event.stopPropagation();editLimonMemo()">メモ</button></div>
 <div class="memoFlag" id="limonMemoFlag"></div></div>
+<div class="card" id="kirakira123Card" onclick="toggleKirakira123()">
+<div class="arrival">18:20 <small>着</small></div><div class="route"><b>KR123便　キラキラ号</b></div>
+<div class="actual" id="kirakira123Actual"></div>
+<div class="actions"><button class="action arrive" id="kirakira123Btn" onclick="event.stopPropagation();toggleKirakira123()">到着</button>
+<button class="action" onclick="event.stopPropagation();editKirakira123Memo()">メモ</button></div>
+<div class="memoFlag" id="kirakira123MemoFlag"></div></div>
 <div class="section">予約・ツアー</div>
 <div class="box"><select id="etype"><option>予約バス</option><option>ツアーバス</option></select><input id="etime" type="time"><input id="ename" placeholder="会社名・団体名"><textarea id="enote" placeholder="メモ"></textarea><button class="save" onclick="addExtra()">＋追加</button></div><div id="extras"></div>
 </div>
@@ -927,7 +936,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const KEY='respaire-daily-v1';
-const blank=()=>({done:{},memo:{},extras:[],highway:null,highwayMemo:'',limon:null,limonMemo:''});
+const blank=()=>({done:{},memo:{},extras:[],highway:null,highwayMemo:'',limon:null,limonMemo:'',kirakira123:null,kirakira123Memo:''});
 const isoLocal=(d=new Date())=>{let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
 let currentDate=isoLocal(), S=blank(), tab='pending', target=null;
 const now=()=>new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
@@ -1010,10 +1019,12 @@ function cardTap(e,id){if(e.target.closest('button,textarea,input,select'))retur
 async function toggleBus(id){if(S.done[id])delete S.done[id];else S.done[id]=now();refresh();await save()}
 async function toggleHighway(){S.highway=S.highway?null:now();refresh();await save()}
 async function toggleLimon(){S.limon=S.limon?null:now();refresh();await save()}
+async function toggleKirakira123(){S.kirakira123=S.kirakira123?null:now();refresh();await save()}
 function editHighwayMemo(){target='highway';document.getElementById('mtitle').textContent='KR124便 キラキラ号 メモ';document.getElementById('mtext').value=S.highwayMemo||'';document.getElementById('memo').showModal()}
 function editLimonMemo(){target='limon';document.getElementById('mtitle').textContent='LIMON Bus メモ';document.getElementById('mtext').value=S.limonMemo||'';document.getElementById('memo').showModal()}
+function editKirakira123Memo(){target='kirakira123';document.getElementById('mtitle').textContent='KR123便 キラキラ号 メモ';document.getElementById('mtext').value=S.kirakira123Memo||'';document.getElementById('memo').showModal()}
 function editMemo(id){target=id;document.getElementById('mtitle').textContent=id+'便 メモ';document.getElementById('mtext').value=S.memo[id]||'';document.getElementById('memo').showModal()}
-async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else if(target==='limon')S.limonMemo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
+async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else if(target==='limon')S.limonMemo=document.getElementById('mtext').value;else if(target==='kirakira123')S.kirakira123Memo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
 function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display=t==='pending'?'block':'none';refresh()}
 function refresh(){let done=Object.keys(S.done||{}).length;document.getElementById('pc').textContent=59-done;document.getElementById('dc').textContent=done;
 for(let i=1;i<=59;i++){let el=document.getElementById('bus-'+i),d=S.done[i];el.style.display=(tab==='done'?!!d:!d)?'block':'none';document.getElementById('actual-'+i).textContent=d?'✓ 到着タップ時刻 '+d:'';document.getElementById('memoFlag-'+i).textContent=S.memo[i]?'📝 メモあり':'';document.getElementById('arrive-'+i).textContent=d?'未到着に戻す':'到着'}
@@ -1025,6 +1036,10 @@ let la=document.getElementById('limonActual'),lb=document.getElementById('limonB
 if(la)la.textContent=S.limon?'✓ 到着タップ時刻 '+S.limon:'';
 if(lb)lb.textContent=S.limon?'到着を取り消す':'到着';
 if(lm)lm.textContent=S.limonMemo?'📝 メモあり':'';
+let ka=document.getElementById('kirakira123Actual'),kb=document.getElementById('kirakira123Btn'),km=document.getElementById('kirakira123MemoFlag');
+if(ka)ka.textContent=S.kirakira123?'✓ 到着タップ時刻 '+S.kirakira123:'';
+if(kb)kb.textContent=S.kirakira123?'到着を取り消す':'到着';
+if(km)km.textContent=S.kirakira123Memo?'📝 メモあり':'';
 }
 async function addExtra(){let t=document.getElementById('etime').value,n=document.getElementById('ename').value.trim();if(!t||!n)return alert('時刻と会社名を入れてな');S.extras.push({type:document.getElementById('etype').value,time:t,name:n,note:document.getElementById('enote').value,arrivedAt:null});renderExtras();await save()}
 async function toggleExtra(i){
