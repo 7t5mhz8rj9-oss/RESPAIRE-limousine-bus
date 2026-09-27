@@ -42,7 +42,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <div id="loginScreen">
   <h2>🔐 スタッフログイン</h2>
   <div style="font-size:13px;color:#666;margin-bottom:10px">レスパイア バス管理</div>
-  <input id="loginEmail" type="email" value="yokoyamaaoi200582@gmail.com" autocomplete="username" readonly>
+  <input id="loginEmail" type="email" value="respaire.limousine.bus@gmail.com" autocomplete="username" readonly>
   <input id="loginPassword" type="password" placeholder="パスワード" autocomplete="current-password">
   <button type="button" onclick="staffLogin()">ログイン</button>
   <div id="loginError"></div>
@@ -1054,7 +1054,7 @@ function renderExtras(){
   ).join('');
 }
 
-const STAFF_EMAIL='yokoyamaaoi200582@gmail.com';
+const STAFF_EMAIL='respaire.limousine.bus@gmail.com';
 
 async function startStaffApp(user){
   if(!user || user.isAnonymous || (user.email||'').toLowerCase()!==STAFF_EMAIL){
