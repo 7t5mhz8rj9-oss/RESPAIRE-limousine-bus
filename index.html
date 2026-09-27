@@ -25,6 +25,12 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 .card.company-kankuu .route b{background:#e3f2fd;color:#0d47a1;}
 .card.company-hankyu .route b{background:#efebe9;color:#5d4037;}
 .card.company-hanshin .route b{background:#fff8d6;color:#6b5600;}
+
+/* 高速バス会社カラー */
+#highwayCard{box-shadow:inset 6px 0 0 #e53935;}
+#highwayCard .route b{display:inline-block;padding:2px 7px;border-radius:7px;background:#ffebee;color:#b71c1c;}
+#limonCard{box-shadow:inset 6px 0 0 #f2c94c;}
+#limonCard .route b{display:inline-block;padding:2px 7px;border-radius:7px;background:#fff8d6;color:#6b5600;}
 </style></head><body>
 <header><h1>🚌 レスパイア バス管理</h1><div class="tabs">
 <button id="pbtn" class="active" onclick="showTab('pending')">未到着 <span id="pc">59</span></button>
@@ -870,9 +876,15 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <div class="card" id="highwayCard" onclick="toggleHighway()">
 <div class="arrival">11:00 <small>発</small></div><div class="route"><b>KR124便　キラキラ号</b></div>
 <div class="actual" id="highwayActual"></div>
-<div class="actions"><button class="action arrive" id="highwayBtn" onclick="event.stopPropagation();toggleHighway()">到着</button>
+<div class="actions"><button class="action arrive" id="highwayBtn" onclick="event.stopPropagation();toggleHighway()">出発</button>
 <button class="action" onclick="event.stopPropagation();editHighwayMemo()">メモ</button></div>
 <div class="memoFlag" id="highwayMemoFlag"></div></div>
+<div class="card" id="limonCard" onclick="toggleLimon()">
+<div class="arrival">15:30 <small>着</small></div><div class="route"><b>LIMON Bus</b></div>
+<div class="actual" id="limonActual"></div>
+<div class="actions"><button class="action arrive" id="limonBtn" onclick="event.stopPropagation();toggleLimon()">到着</button>
+<button class="action" onclick="event.stopPropagation();editLimonMemo()">メモ</button></div>
+<div class="memoFlag" id="limonMemoFlag"></div></div>
 <div class="section">予約・ツアー</div>
 <div class="box"><select id="etype"><option>予約バス</option><option>ツアーバス</option></select><input id="etime" type="time"><input id="ename" placeholder="会社名・団体名"><textarea id="enote" placeholder="メモ"></textarea><button class="save" onclick="addExtra()">＋追加</button></div><div id="extras"></div>
 </div>
@@ -896,7 +908,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const KEY='respaire-daily-v1';
-const blank=()=>({done:{},memo:{},extras:[],highway:null,highwayMemo:''});
+const blank=()=>({done:{},memo:{},extras:[],highway:null,highwayMemo:'',limon:null,limonMemo:''});
 const isoLocal=(d=new Date())=>{let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
 let currentDate=isoLocal(), S=blank(), tab='pending', target=null;
 const now=()=>new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
@@ -978,16 +990,22 @@ async function changeDay(n){let d=new Date(currentDate+'T12:00:00');d.setDate(d.
 function cardTap(e,id){if(e.target.closest('button,textarea,input,select'))return;toggleBus(id)}
 async function toggleBus(id){if(S.done[id])delete S.done[id];else S.done[id]=now();refresh();await save()}
 async function toggleHighway(){S.highway=S.highway?null:now();refresh();await save()}
+async function toggleLimon(){S.limon=S.limon?null:now();refresh();await save()}
 function editHighwayMemo(){target='highway';document.getElementById('mtitle').textContent='KR124便 キラキラ号 メモ';document.getElementById('mtext').value=S.highwayMemo||'';document.getElementById('memo').showModal()}
+function editLimonMemo(){target='limon';document.getElementById('mtitle').textContent='LIMON Bus メモ';document.getElementById('mtext').value=S.limonMemo||'';document.getElementById('memo').showModal()}
 function editMemo(id){target=id;document.getElementById('mtitle').textContent=id+'便 メモ';document.getElementById('mtext').value=S.memo[id]||'';document.getElementById('memo').showModal()}
-async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
+async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else if(target==='limon')S.limonMemo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
 function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display=t==='pending'?'block':'none';refresh()}
 function refresh(){let done=Object.keys(S.done||{}).length;document.getElementById('pc').textContent=59-done;document.getElementById('dc').textContent=done;
 for(let i=1;i<=59;i++){let el=document.getElementById('bus-'+i),d=S.done[i];el.style.display=(tab==='done'?!!d:!d)?'block':'none';document.getElementById('actual-'+i).textContent=d?'✓ 到着タップ時刻 '+d:'';document.getElementById('memoFlag-'+i).textContent=S.memo[i]?'📝 メモあり':'';document.getElementById('arrive-'+i).textContent=d?'未到着に戻す':'到着'}
 let ha=document.getElementById('highwayActual'),hb=document.getElementById('highwayBtn'),hm=document.getElementById('highwayMemoFlag');
-if(ha)ha.textContent=S.highway?'✓ 到着タップ時刻 '+S.highway:'';
-if(hb)hb.textContent=S.highway?'到着を取り消す':'到着';
+if(ha)ha.textContent=S.highway?'✓ 出発タップ時刻 '+S.highway:'';
+if(hb)hb.textContent=S.highway?'出発を取り消す':'出発';
 if(hm)hm.textContent=S.highwayMemo?'📝 メモあり':'';
+let la=document.getElementById('limonActual'),lb=document.getElementById('limonBtn'),lm=document.getElementById('limonMemoFlag');
+if(la)la.textContent=S.limon?'✓ 到着タップ時刻 '+S.limon:'';
+if(lb)lb.textContent=S.limon?'到着を取り消す':'到着';
+if(lm)lm.textContent=S.limonMemo?'📝 メモあり':'';
 }
 async function addExtra(){let t=document.getElementById('etime').value,n=document.getElementById('ename').value.trim();if(!t||!n)return alert('時刻と会社名を入れてな');S.extras.push({type:document.getElementById('etype').value,time:t,name:n,note:document.getElementById('enote').value,arrivedAt:null});renderExtras();await save()}
 async function toggleExtra(i){
