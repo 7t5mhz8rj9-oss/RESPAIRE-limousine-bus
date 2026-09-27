@@ -31,7 +31,24 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 #highwayCard .route b{display:inline-block;padding:2px 7px;border-radius:7px;background:#ffebee;color:#b71c1c;}
 #limonCard{box-shadow:inset 6px 0 0 #f2c94c;}
 #limonCard .route b{display:inline-block;padding:2px 7px;border-radius:7px;background:#fff8d6;color:#6b5600;}
+
+#loginScreen{display:none;max-width:420px;margin:70px auto;padding:22px;background:#fff;border:1px solid #ddd;border-radius:16px}
+#loginScreen h2{margin:0 0 8px}
+#loginScreen input{width:100%;box-sizing:border-box;margin:7px 0;padding:12px;font-size:16px;border:1px solid #ccc;border-radius:10px}
+#loginScreen button{width:100%;margin-top:10px;padding:12px;font-size:16px;font-weight:800;border:0;border-radius:10px}
+#loginError{color:#b00020;font-size:13px;margin-top:9px}
+#appRoot{display:none}
 </style></head><body>
+<div id="loginScreen">
+  <h2>🔐 スタッフログイン</h2>
+  <div style="font-size:13px;color:#666;margin-bottom:10px">レスパイア バス管理</div>
+  <input id="loginEmail" type="email" value="yokoyamaaoi200582@gmail.com" autocomplete="username" readonly>
+  <input id="loginPassword" type="password" placeholder="パスワード" autocomplete="current-password">
+  <button type="button" onclick="staffLogin()">ログイン</button>
+  <div id="loginError"></div>
+</div>
+<div id="appRoot">
+
 <header><h1>🚌 レスパイア バス管理</h1><div class="tabs">
 <button id="pbtn" class="active" onclick="showTab('pending')">未到着 <span id="pc">59</span></button>
 <button id="dbtn" onclick="showTab('done')">到着済み <span id="dc">0</span></button></div>
@@ -893,6 +910,8 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth-compat.js"></script>
+
+</div>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAkXlDYyrQBuQE4Q6CSnc05NyN4xeDxROI",
@@ -1035,16 +1054,38 @@ function renderExtras(){
   ).join('');
 }
 
-(async()=>{
+const STAFF_EMAIL='yokoyamaaoi200582@gmail.com';
+
+async function startStaffApp(user){
+  if(!user || user.isAnonymous || (user.email||'').toLowerCase()!==STAFF_EMAIL){
+    if(user) await auth.signOut();
+    document.getElementById('appRoot').style.display='none';
+    document.getElementById('loginScreen').style.display='block';
+    return;
+  }
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appRoot').style.display='block';
+  showStatus('🔐 スタッフ認証OK・Firebase接続中…');
+  await seedTimetable();
+  await loadDay();
+  applyCompanyColors();
+}
+
+async function staffLogin(){
+  const err=document.getElementById('loginError');
+  const password=document.getElementById('loginPassword').value;
+  err.textContent='';
+  if(!password){err.textContent='パスワードを入力してな';return;}
   try{
-    showStatus('🔐 Firebase認証中…');
-    if(!auth.currentUser){
-      await auth.signInAnonymously();
-    }
-    showStatus('🔐 匿名認証OK・Firebase接続中…');
-    await seedTimetable();
-    await loadDay();
-    applyCompanyColors();
-  }catch(e){fail(e)}
-})();
+    const cred=await auth.signInWithEmailAndPassword(STAFF_EMAIL,password);
+    await startStaffApp(cred.user);
+    document.getElementById('loginPassword').value='';
+  }catch(e){
+    err.textContent='ログインできません。メール/パスワードを確認してな。';
+  }
+}
+
+auth.onAuthStateChanged(async user=>{
+  try{ await startStaffApp(user); }catch(e){ fail(e); }
+});
 </script></body></html>
