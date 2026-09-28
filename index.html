@@ -45,6 +45,11 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 .card.no-service{background:#fff0f3 !important;border-color:#ef9a9a !important;box-shadow:inset 6px 0 0 #e57373 !important;}
 .card.no-service .arrival,.card.no-service .route,.card.no-service .route b{color:#b71c1c !important;}
 .noServiceFlag{font-weight:800;color:#c62828;margin-top:5px;}
+
+@keyframes kixContactFlash{0%,100%{box-shadow:0 0 0 2px #ff9800,0 0 18px #ff9800aa}50%{box-shadow:0 0 0 4px #ffd54f,0 0 30px #ffd54fcc}}
+.card.kix-contact{animation:kixContactFlash 1s infinite;background:#fff8e1 !important}
+.kixContactFlag{font-weight:900;color:#e65100;margin-top:5px}
+.kixContactBtn{font-size:11px !important;padding:6px 8px !important}
 </style></head><body>
 <div id="loginScreen">
   <h2>🔐 スタッフログイン</h2>
@@ -94,7 +99,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-1"></div>
   <div class="memoFlag" id="memoFlag-1"></div>
-  <div class="actions"><button class="action arrive" id="arrive-1" onclick="event.stopPropagation();toggleBus(1)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(1)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(1)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-1" onclick="event.stopPropagation();toggleBus(1)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(1)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(1)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(1)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-2" onclick="cardTap(event,2">
   <div class="top">
@@ -108,7 +113,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-2"></div>
   <div class="memoFlag" id="memoFlag-2"></div>
-  <div class="actions"><button class="action arrive" id="arrive-2" onclick="event.stopPropagation();toggleBus(2)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(2)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(2)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-2" onclick="event.stopPropagation();toggleBus(2)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(2)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(2)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(2)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-3" onclick="cardTap(event,3">
   <div class="top">
@@ -122,7 +127,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-3"></div>
   <div class="memoFlag" id="memoFlag-3"></div>
-  <div class="actions"><button class="action arrive" id="arrive-3" onclick="event.stopPropagation();toggleBus(3)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(3)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(3)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-3" onclick="event.stopPropagation();toggleBus(3)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(3)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(3)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(3)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-4" onclick="cardTap(event,4">
   <div class="top">
@@ -136,7 +141,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-4"></div>
   <div class="memoFlag" id="memoFlag-4"></div>
-  <div class="actions"><button class="action arrive" id="arrive-4" onclick="event.stopPropagation();toggleBus(4)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(4)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(4)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-4" onclick="event.stopPropagation();toggleBus(4)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(4)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(4)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(4)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-5" onclick="cardTap(event,5">
   <div class="top">
@@ -150,7 +155,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-5"></div>
   <div class="memoFlag" id="memoFlag-5"></div>
-  <div class="actions"><button class="action arrive" id="arrive-5" onclick="event.stopPropagation();toggleBus(5)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(5)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(5)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-5" onclick="event.stopPropagation();toggleBus(5)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(5)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(5)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(5)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-6" onclick="cardTap(event,6">
   <div class="top">
@@ -164,7 +169,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-6"></div>
   <div class="memoFlag" id="memoFlag-6"></div>
-  <div class="actions"><button class="action arrive" id="arrive-6" onclick="event.stopPropagation();toggleBus(6)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(6)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(6)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-6" onclick="event.stopPropagation();toggleBus(6)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(6)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(6)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(6)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-7" onclick="cardTap(event,7">
   <div class="top">
@@ -178,7 +183,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-7"></div>
   <div class="memoFlag" id="memoFlag-7"></div>
-  <div class="actions"><button class="action arrive" id="arrive-7" onclick="event.stopPropagation();toggleBus(7)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(7)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(7)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-7" onclick="event.stopPropagation();toggleBus(7)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(7)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(7)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(7)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-8" onclick="cardTap(event,8">
   <div class="top">
@@ -192,7 +197,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-8"></div>
   <div class="memoFlag" id="memoFlag-8"></div>
-  <div class="actions"><button class="action arrive" id="arrive-8" onclick="event.stopPropagation();toggleBus(8)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(8)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(8)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-8" onclick="event.stopPropagation();toggleBus(8)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(8)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(8)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(8)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-9" onclick="cardTap(event,9">
   <div class="top">
@@ -206,7 +211,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-9"></div>
   <div class="memoFlag" id="memoFlag-9"></div>
-  <div class="actions"><button class="action arrive" id="arrive-9" onclick="event.stopPropagation();toggleBus(9)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(9)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(9)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-9" onclick="event.stopPropagation();toggleBus(9)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(9)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(9)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(9)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-10" onclick="cardTap(event,10">
   <div class="top">
@@ -220,7 +225,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-10"></div>
   <div class="memoFlag" id="memoFlag-10"></div>
-  <div class="actions"><button class="action arrive" id="arrive-10" onclick="event.stopPropagation();toggleBus(10)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(10)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(10)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-10" onclick="event.stopPropagation();toggleBus(10)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(10)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(10)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(10)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-11" onclick="cardTap(event,11">
   <div class="top">
@@ -234,7 +239,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-11"></div>
   <div class="memoFlag" id="memoFlag-11"></div>
-  <div class="actions"><button class="action arrive" id="arrive-11" onclick="event.stopPropagation();toggleBus(11)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(11)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(11)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-11" onclick="event.stopPropagation();toggleBus(11)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(11)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(11)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(11)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-12" onclick="cardTap(event,12">
   <div class="top">
@@ -248,7 +253,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-12"></div>
   <div class="memoFlag" id="memoFlag-12"></div>
-  <div class="actions"><button class="action arrive" id="arrive-12" onclick="event.stopPropagation();toggleBus(12)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(12)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(12)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-12" onclick="event.stopPropagation();toggleBus(12)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(12)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(12)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(12)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-13" onclick="cardTap(event,13">
   <div class="top">
@@ -262,7 +267,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-13"></div>
   <div class="memoFlag" id="memoFlag-13"></div>
-  <div class="actions"><button class="action arrive" id="arrive-13" onclick="event.stopPropagation();toggleBus(13)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(13)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(13)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-13" onclick="event.stopPropagation();toggleBus(13)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(13)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(13)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(13)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-14" onclick="cardTap(event,14">
   <div class="top">
@@ -276,7 +281,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-14"></div>
   <div class="memoFlag" id="memoFlag-14"></div>
-  <div class="actions"><button class="action arrive" id="arrive-14" onclick="event.stopPropagation();toggleBus(14)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(14)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(14)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-14" onclick="event.stopPropagation();toggleBus(14)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(14)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(14)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(14)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-15" onclick="cardTap(event,15">
   <div class="top">
@@ -290,7 +295,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-15"></div>
   <div class="memoFlag" id="memoFlag-15"></div>
-  <div class="actions"><button class="action arrive" id="arrive-15" onclick="event.stopPropagation();toggleBus(15)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(15)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(15)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-15" onclick="event.stopPropagation();toggleBus(15)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(15)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(15)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(15)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-16" onclick="cardTap(event,16">
   <div class="top">
@@ -304,7 +309,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-16"></div>
   <div class="memoFlag" id="memoFlag-16"></div>
-  <div class="actions"><button class="action arrive" id="arrive-16" onclick="event.stopPropagation();toggleBus(16)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(16)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(16)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-16" onclick="event.stopPropagation();toggleBus(16)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(16)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(16)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(16)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-17" onclick="cardTap(event,17">
   <div class="top">
@@ -318,7 +323,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-17"></div>
   <div class="memoFlag" id="memoFlag-17"></div>
-  <div class="actions"><button class="action arrive" id="arrive-17" onclick="event.stopPropagation();toggleBus(17)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(17)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(17)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-17" onclick="event.stopPropagation();toggleBus(17)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(17)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(17)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(17)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-18" onclick="cardTap(event,18">
   <div class="top">
@@ -332,7 +337,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-18"></div>
   <div class="memoFlag" id="memoFlag-18"></div>
-  <div class="actions"><button class="action arrive" id="arrive-18" onclick="event.stopPropagation();toggleBus(18)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(18)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(18)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-18" onclick="event.stopPropagation();toggleBus(18)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(18)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(18)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(18)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-19" onclick="cardTap(event,19">
   <div class="top">
@@ -346,7 +351,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-19"></div>
   <div class="memoFlag" id="memoFlag-19"></div>
-  <div class="actions"><button class="action arrive" id="arrive-19" onclick="event.stopPropagation();toggleBus(19)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(19)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(19)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-19" onclick="event.stopPropagation();toggleBus(19)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(19)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(19)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(19)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-20" onclick="cardTap(event,20">
   <div class="top">
@@ -360,7 +365,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-20"></div>
   <div class="memoFlag" id="memoFlag-20"></div>
-  <div class="actions"><button class="action arrive" id="arrive-20" onclick="event.stopPropagation();toggleBus(20)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(20)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(20)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-20" onclick="event.stopPropagation();toggleBus(20)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(20)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(20)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(20)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-21" onclick="cardTap(event,21">
   <div class="top">
@@ -374,7 +379,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-21"></div>
   <div class="memoFlag" id="memoFlag-21"></div>
-  <div class="actions"><button class="action arrive" id="arrive-21" onclick="event.stopPropagation();toggleBus(21)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(21)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(21)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-21" onclick="event.stopPropagation();toggleBus(21)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(21)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(21)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(21)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-22" onclick="cardTap(event,22">
   <div class="top">
@@ -388,7 +393,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-22"></div>
   <div class="memoFlag" id="memoFlag-22"></div>
-  <div class="actions"><button class="action arrive" id="arrive-22" onclick="event.stopPropagation();toggleBus(22)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(22)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(22)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-22" onclick="event.stopPropagation();toggleBus(22)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(22)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(22)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(22)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-23" onclick="cardTap(event,23">
   <div class="top">
@@ -402,7 +407,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-23"></div>
   <div class="memoFlag" id="memoFlag-23"></div>
-  <div class="actions"><button class="action arrive" id="arrive-23" onclick="event.stopPropagation();toggleBus(23)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(23)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(23)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-23" onclick="event.stopPropagation();toggleBus(23)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(23)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(23)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(23)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-24" onclick="cardTap(event,24">
   <div class="top">
@@ -416,7 +421,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-24"></div>
   <div class="memoFlag" id="memoFlag-24"></div>
-  <div class="actions"><button class="action arrive" id="arrive-24" onclick="event.stopPropagation();toggleBus(24)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(24)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(24)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-24" onclick="event.stopPropagation();toggleBus(24)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(24)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(24)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(24)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-25" onclick="cardTap(event,25">
   <div class="top">
@@ -430,7 +435,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-25"></div>
   <div class="memoFlag" id="memoFlag-25"></div>
-  <div class="actions"><button class="action arrive" id="arrive-25" onclick="event.stopPropagation();toggleBus(25)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(25)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(25)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-25" onclick="event.stopPropagation();toggleBus(25)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(25)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(25)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(25)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-26" onclick="cardTap(event,26">
   <div class="top">
@@ -444,7 +449,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-26"></div>
   <div class="memoFlag" id="memoFlag-26"></div>
-  <div class="actions"><button class="action arrive" id="arrive-26" onclick="event.stopPropagation();toggleBus(26)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(26)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(26)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-26" onclick="event.stopPropagation();toggleBus(26)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(26)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(26)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(26)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-27" onclick="cardTap(event,27">
   <div class="top">
@@ -458,7 +463,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-27"></div>
   <div class="memoFlag" id="memoFlag-27"></div>
-  <div class="actions"><button class="action arrive" id="arrive-27" onclick="event.stopPropagation();toggleBus(27)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(27)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(27)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-27" onclick="event.stopPropagation();toggleBus(27)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(27)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(27)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(27)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-28" onclick="cardTap(event,28">
   <div class="top">
@@ -472,7 +477,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-28"></div>
   <div class="memoFlag" id="memoFlag-28"></div>
-  <div class="actions"><button class="action arrive" id="arrive-28" onclick="event.stopPropagation();toggleBus(28)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(28)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(28)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-28" onclick="event.stopPropagation();toggleBus(28)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(28)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(28)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(28)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-29" onclick="cardTap(event,29">
   <div class="top">
@@ -486,7 +491,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-29"></div>
   <div class="memoFlag" id="memoFlag-29"></div>
-  <div class="actions"><button class="action arrive" id="arrive-29" onclick="event.stopPropagation();toggleBus(29)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(29)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(29)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-29" onclick="event.stopPropagation();toggleBus(29)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(29)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(29)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(29)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-30" onclick="cardTap(event,30">
   <div class="top">
@@ -500,7 +505,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-30"></div>
   <div class="memoFlag" id="memoFlag-30"></div>
-  <div class="actions"><button class="action arrive" id="arrive-30" onclick="event.stopPropagation();toggleBus(30)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(30)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(30)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-30" onclick="event.stopPropagation();toggleBus(30)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(30)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(30)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(30)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-31" onclick="cardTap(event,31">
   <div class="top">
@@ -514,7 +519,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-31"></div>
   <div class="memoFlag" id="memoFlag-31"></div>
-  <div class="actions"><button class="action arrive" id="arrive-31" onclick="event.stopPropagation();toggleBus(31)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(31)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(31)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-31" onclick="event.stopPropagation();toggleBus(31)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(31)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(31)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(31)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-32" onclick="cardTap(event,32">
   <div class="top">
@@ -528,7 +533,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-32"></div>
   <div class="memoFlag" id="memoFlag-32"></div>
-  <div class="actions"><button class="action arrive" id="arrive-32" onclick="event.stopPropagation();toggleBus(32)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(32)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(32)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-32" onclick="event.stopPropagation();toggleBus(32)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(32)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(32)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(32)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-33" onclick="cardTap(event,33">
   <div class="top">
@@ -542,7 +547,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-33"></div>
   <div class="memoFlag" id="memoFlag-33"></div>
-  <div class="actions"><button class="action arrive" id="arrive-33" onclick="event.stopPropagation();toggleBus(33)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(33)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(33)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-33" onclick="event.stopPropagation();toggleBus(33)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(33)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(33)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(33)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-34" onclick="cardTap(event,34">
   <div class="top">
@@ -556,7 +561,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-34"></div>
   <div class="memoFlag" id="memoFlag-34"></div>
-  <div class="actions"><button class="action arrive" id="arrive-34" onclick="event.stopPropagation();toggleBus(34)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(34)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(34)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-34" onclick="event.stopPropagation();toggleBus(34)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(34)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(34)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(34)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-35" onclick="cardTap(event,35">
   <div class="top">
@@ -570,7 +575,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-35"></div>
   <div class="memoFlag" id="memoFlag-35"></div>
-  <div class="actions"><button class="action arrive" id="arrive-35" onclick="event.stopPropagation();toggleBus(35)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(35)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(35)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-35" onclick="event.stopPropagation();toggleBus(35)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(35)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(35)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(35)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-36" onclick="cardTap(event,36">
   <div class="top">
@@ -584,7 +589,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-36"></div>
   <div class="memoFlag" id="memoFlag-36"></div>
-  <div class="actions"><button class="action arrive" id="arrive-36" onclick="event.stopPropagation();toggleBus(36)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(36)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(36)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-36" onclick="event.stopPropagation();toggleBus(36)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(36)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(36)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(36)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-37" onclick="cardTap(event,37">
   <div class="top">
@@ -598,7 +603,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-37"></div>
   <div class="memoFlag" id="memoFlag-37"></div>
-  <div class="actions"><button class="action arrive" id="arrive-37" onclick="event.stopPropagation();toggleBus(37)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(37)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(37)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-37" onclick="event.stopPropagation();toggleBus(37)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(37)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(37)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(37)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-38" onclick="cardTap(event,38">
   <div class="top">
@@ -612,7 +617,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-38"></div>
   <div class="memoFlag" id="memoFlag-38"></div>
-  <div class="actions"><button class="action arrive" id="arrive-38" onclick="event.stopPropagation();toggleBus(38)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(38)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(38)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-38" onclick="event.stopPropagation();toggleBus(38)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(38)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(38)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(38)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-39" onclick="cardTap(event,39">
   <div class="top">
@@ -626,7 +631,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-39"></div>
   <div class="memoFlag" id="memoFlag-39"></div>
-  <div class="actions"><button class="action arrive" id="arrive-39" onclick="event.stopPropagation();toggleBus(39)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(39)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(39)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-39" onclick="event.stopPropagation();toggleBus(39)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(39)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(39)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(39)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-40" onclick="cardTap(event,40">
   <div class="top">
@@ -640,7 +645,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-40"></div>
   <div class="memoFlag" id="memoFlag-40"></div>
-  <div class="actions"><button class="action arrive" id="arrive-40" onclick="event.stopPropagation();toggleBus(40)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(40)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(40)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-40" onclick="event.stopPropagation();toggleBus(40)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(40)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(40)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(40)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-41" onclick="cardTap(event,41">
   <div class="top">
@@ -654,7 +659,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-41"></div>
   <div class="memoFlag" id="memoFlag-41"></div>
-  <div class="actions"><button class="action arrive" id="arrive-41" onclick="event.stopPropagation();toggleBus(41)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(41)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(41)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-41" onclick="event.stopPropagation();toggleBus(41)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(41)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(41)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(41)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-42" onclick="cardTap(event,42">
   <div class="top">
@@ -668,7 +673,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-42"></div>
   <div class="memoFlag" id="memoFlag-42"></div>
-  <div class="actions"><button class="action arrive" id="arrive-42" onclick="event.stopPropagation();toggleBus(42)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(42)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(42)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-42" onclick="event.stopPropagation();toggleBus(42)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(42)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(42)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(42)">📞 連絡あり</button></div>
 </div>
 <div class="card deadhead busTap" id="bus-43" onclick="cardTap(event,43">
   <div class="top">
@@ -682,7 +687,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-43"></div>
   <div class="memoFlag" id="memoFlag-43"></div>
-  <div class="actions"><button class="action arrive" id="arrive-43" onclick="event.stopPropagation();toggleBus(43)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(43)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(43)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-43" onclick="event.stopPropagation();toggleBus(43)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(43)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(43)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(43)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-44" onclick="cardTap(event,44">
   <div class="top">
@@ -696,7 +701,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-44"></div>
   <div class="memoFlag" id="memoFlag-44"></div>
-  <div class="actions"><button class="action arrive" id="arrive-44" onclick="event.stopPropagation();toggleBus(44)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(44)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(44)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-44" onclick="event.stopPropagation();toggleBus(44)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(44)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(44)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(44)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-45" onclick="cardTap(event,45">
   <div class="top">
@@ -710,7 +715,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-45"></div>
   <div class="memoFlag" id="memoFlag-45"></div>
-  <div class="actions"><button class="action arrive" id="arrive-45" onclick="event.stopPropagation();toggleBus(45)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(45)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(45)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-45" onclick="event.stopPropagation();toggleBus(45)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(45)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(45)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(45)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-46" onclick="cardTap(event,46">
   <div class="top">
@@ -724,7 +729,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-46"></div>
   <div class="memoFlag" id="memoFlag-46"></div>
-  <div class="actions"><button class="action arrive" id="arrive-46" onclick="event.stopPropagation();toggleBus(46)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(46)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(46)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-46" onclick="event.stopPropagation();toggleBus(46)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(46)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(46)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(46)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-47" onclick="cardTap(event,47">
   <div class="top">
@@ -738,7 +743,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-47"></div>
   <div class="memoFlag" id="memoFlag-47"></div>
-  <div class="actions"><button class="action arrive" id="arrive-47" onclick="event.stopPropagation();toggleBus(47)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(47)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(47)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-47" onclick="event.stopPropagation();toggleBus(47)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(47)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(47)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(47)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-48" onclick="cardTap(event,48">
   <div class="top">
@@ -752,7 +757,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-48"></div>
   <div class="memoFlag" id="memoFlag-48"></div>
-  <div class="actions"><button class="action arrive" id="arrive-48" onclick="event.stopPropagation();toggleBus(48)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(48)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(48)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-48" onclick="event.stopPropagation();toggleBus(48)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(48)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(48)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(48)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-49" onclick="cardTap(event,49">
   <div class="top">
@@ -766,7 +771,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-49"></div>
   <div class="memoFlag" id="memoFlag-49"></div>
-  <div class="actions"><button class="action arrive" id="arrive-49" onclick="event.stopPropagation();toggleBus(49)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(49)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(49)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-49" onclick="event.stopPropagation();toggleBus(49)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(49)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(49)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(49)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-50" onclick="cardTap(event,50">
   <div class="top">
@@ -780,7 +785,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-50"></div>
   <div class="memoFlag" id="memoFlag-50"></div>
-  <div class="actions"><button class="action arrive" id="arrive-50" onclick="event.stopPropagation();toggleBus(50)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(50)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(50)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-50" onclick="event.stopPropagation();toggleBus(50)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(50)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(50)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(50)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-51" onclick="cardTap(event,51">
   <div class="top">
@@ -794,7 +799,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-51"></div>
   <div class="memoFlag" id="memoFlag-51"></div>
-  <div class="actions"><button class="action arrive" id="arrive-51" onclick="event.stopPropagation();toggleBus(51)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(51)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(51)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-51" onclick="event.stopPropagation();toggleBus(51)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(51)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(51)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(51)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-52" onclick="cardTap(event,52">
   <div class="top">
@@ -808,7 +813,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-52"></div>
   <div class="memoFlag" id="memoFlag-52"></div>
-  <div class="actions"><button class="action arrive" id="arrive-52" onclick="event.stopPropagation();toggleBus(52)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(52)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(52)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-52" onclick="event.stopPropagation();toggleBus(52)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(52)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(52)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(52)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-53" onclick="cardTap(event,53">
   <div class="top">
@@ -822,7 +827,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-53"></div>
   <div class="memoFlag" id="memoFlag-53"></div>
-  <div class="actions"><button class="action arrive" id="arrive-53" onclick="event.stopPropagation();toggleBus(53)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(53)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(53)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-53" onclick="event.stopPropagation();toggleBus(53)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(53)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(53)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(53)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-54" onclick="cardTap(event,54">
   <div class="top">
@@ -836,7 +841,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-54"></div>
   <div class="memoFlag" id="memoFlag-54"></div>
-  <div class="actions"><button class="action arrive" id="arrive-54" onclick="event.stopPropagation();toggleBus(54)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(54)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(54)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-54" onclick="event.stopPropagation();toggleBus(54)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(54)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(54)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(54)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-55" onclick="cardTap(event,55">
   <div class="top">
@@ -850,7 +855,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-55"></div>
   <div class="memoFlag" id="memoFlag-55"></div>
-  <div class="actions"><button class="action arrive" id="arrive-55" onclick="event.stopPropagation();toggleBus(55)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(55)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(55)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-55" onclick="event.stopPropagation();toggleBus(55)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(55)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(55)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(55)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-56" onclick="cardTap(event,56">
   <div class="top">
@@ -864,7 +869,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-56"></div>
   <div class="memoFlag" id="memoFlag-56"></div>
-  <div class="actions"><button class="action arrive" id="arrive-56" onclick="event.stopPropagation();toggleBus(56)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(56)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(56)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-56" onclick="event.stopPropagation();toggleBus(56)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(56)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(56)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(56)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-57" onclick="cardTap(event,57">
   <div class="top">
@@ -878,7 +883,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-57"></div>
   <div class="memoFlag" id="memoFlag-57"></div>
-  <div class="actions"><button class="action arrive" id="arrive-57" onclick="event.stopPropagation();toggleBus(57)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(57)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(57)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-57" onclick="event.stopPropagation();toggleBus(57)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(57)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(57)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(57)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-58" onclick="cardTap(event,58">
   <div class="top">
@@ -892,7 +897,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-58"></div>
   <div class="memoFlag" id="memoFlag-58"></div>
-  <div class="actions"><button class="action arrive" id="arrive-58" onclick="event.stopPropagation();toggleBus(58)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(58)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(58)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-58" onclick="event.stopPropagation();toggleBus(58)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(58)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(58)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(58)">📞 連絡あり</button></div>
 </div>
 <div class="card busTap" id="bus-59" onclick="cardTap(event,59">
   <div class="top">
@@ -906,7 +911,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   </div>
   <div class="actual" id="actual-59"></div>
   <div class="memoFlag" id="memoFlag-59"></div>
-  <div class="actions"><button class="action arrive" id="arrive-59" onclick="event.stopPropagation();toggleBus(59)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(59)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(59)">🚫 運行なし</button></div>
+  <div class="actions"><button class="action arrive" id="arrive-59" onclick="event.stopPropagation();toggleBus(59)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(59)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(59)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(59)">📞 連絡あり</button></div>
 </div></div>
 
 <div id="other">
@@ -1186,11 +1191,24 @@ async function updatePhotoFlags(){
     });
   }catch(e){console.warn(e)}
 }
+function toggleKixContact(id){
+  S.kixContact=S.kixContact||{};
+  if(S.kixContact[id])delete S.kixContact[id];else S.kixContact[id]=true;
+  refresh();save();
+}
 function refresh(){
 S.noService=S.noService||{};
+S.kixContact=S.kixContact||{};
 for(let i=1;i<=59;i++){
   const c=document.getElementById('bus-'+i);if(!c)continue;
   c.classList.toggle('no-service',!!S.noService[i]);
+  c.classList.toggle('kix-contact',!!S.kixContact[i]);
+  let k=c.querySelector('.kixContactFlag');
+  if(S.kixContact[i]){
+    if(!k){k=document.createElement('div');k.className='kixContactFlag';c.querySelector('.route').appendChild(k);}
+    k.textContent='📞 関空から連絡あり';
+  }else if(k){k.remove();}
+
   let f=c.querySelector('.noServiceFlag');
   if(S.noService[i]){
     if(!f){f=document.createElement('div');f.className='noServiceFlag';c.querySelector('.route').appendChild(f);}
