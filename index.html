@@ -1199,7 +1199,7 @@ function toggleKixContact(id){
 }
 function updateKixContactSummary(){
   const box=document.getElementById('kixContactSummary');if(!box)return;
-  const ids=Object.keys(S.kixContact||{}).filter(id=>S.kixContact[id]).map(Number).sort((a,b)=>a-b);
+  const ids=Object.keys(S.kixContact||{}).filter(id=>S.kixContact[id] && !(S.done||{})[id]).map(Number).sort((a,b)=>a-b);
   if(!ids.length){box.style.display='none';box.innerHTML='';return;}
   box.style.display='block';
   box.innerHTML=ids.map(id=>{
