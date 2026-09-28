@@ -83,7 +83,8 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 </div><button type="button" onclick="staffLogout()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);padding:7px 9px;border:0;border-radius:9px;background:#fff;color:#333;font-weight:700;font-size:12px">🚪ログアウト</button></header>
 <main>
 <div id="dutyBar" style="margin:10px 12px;padding:10px;border-radius:10px;background:#e8f5e9;font-weight:800;text-align:center">🟢 業務中</div>
-<div style="margin:10px 12px"><button type="button" class="action" onclick="openDutyEnd()" style="width:100%;padding:11px;font-weight:800">⏹ 業務終了画面へ</button></div>
+<div id="dutyEndAction" style="margin:10px 12px"><button type="button" class="action" onclick="openDutyEnd()" style="width:100%;padding:11px;font-weight:800">⏹ 業務終了画面へ</button></div>
+<div id="recordBackAction" style="display:none;margin:10px 12px"><button type="button" class="action" onclick="loadDutyHome()" style="width:100%;padding:11px;font-weight:800">← 終了画面に戻る</button></div>
 
 <div class="box" style="font-size:13px"><b>📅 日別保存</b><br>到着時刻・メモ・キラキラ号・予約/ツアーバスは、上の日付ごとにクラウドへ保存されます。</div>
 <div id="kixContactSummary" style="display:none;margin:10px 12px;padding:10px 12px;border-radius:12px;background:#fff8e1;border:2px solid #ffb300;font-weight:800"></div>
@@ -1372,6 +1373,10 @@ function showWorkScreen(){
   document.getElementById('dutyEndScreen').style.display='none';
   const b=document.getElementById('dutyBar');
   if(b)b.textContent='🟢 業務中　開始 '+fmtDutyTime(dutyState.startedAt);
+  const endAction=document.getElementById('dutyEndAction');
+  const backAction=document.getElementById('recordBackAction');
+  if(endAction)endAction.style.display='block';
+  if(backAction)backAction.style.display='none';
 }
 function viewTodayRecord(){
   document.getElementById('dutyHome').style.display='none';
@@ -1379,6 +1384,10 @@ function viewTodayRecord(){
   document.getElementById('dutyEndScreen').style.display='none';
   const b=document.getElementById('dutyBar');
   if(b)b.textContent='📋 本日の業務記録　終了 '+fmtDutyTime(dutyState.endedAt);
+  const endAction=document.getElementById('dutyEndAction');
+  const backAction=document.getElementById('recordBackAction');
+  if(endAction)endAction.style.display='none';
+  if(backAction)backAction.style.display='block';
 }
 async function startDuty(){
   try{
