@@ -85,6 +85,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <div style="margin:10px 12px"><button type="button" class="action" onclick="openDutyEnd()" style="width:100%;padding:11px;font-weight:800">⏹ 業務終了画面へ</button></div>
 
 <div class="box" style="font-size:13px"><b>📅 日別保存</b><br>到着時刻・メモ・キラキラ号・予約/ツアーバスは、上の日付ごとにクラウドへ保存されます。</div>
+<div id="kixContactSummary" style="display:none;margin:10px 12px;padding:10px 12px;border-radius:12px;background:#fff8e1;border:2px solid #ffb300;font-weight:800"></div>
 <div class="section">リムジンバス　59便</div>
 <div id="busList">
 <div class="card busTap" id="bus-1" onclick="cardTap(event,1">
@@ -1196,6 +1197,22 @@ function toggleKixContact(id){
   if(S.kixContact[id])delete S.kixContact[id];else S.kixContact[id]=true;
   refresh();save();
 }
+function updateKixContactSummary(){
+  const box=document.getElementById('kixContactSummary');if(!box)return;
+  const ids=Object.keys(S.kixContact||{}).filter(id=>S.kixContact[id]).map(Number).sort((a,b)=>a-b);
+  if(!ids.length){box.style.display='none';box.innerHTML='';return;}
+  box.style.display='block';
+  box.innerHTML=ids.map(id=>{
+    const c=document.getElementById('bus-'+id);
+    const time=(c?.querySelector('.arrival')?.textContent||'').trim().replace(/\s+/g,' ');
+    // Count regular buses before this target that have not yet arrived and are not marked no-service.
+    let remaining=0;
+    for(let i=1;i<id;i++){
+      if(!(S.done||{})[i] && !(S.noService||{})[i])remaining++;
+    }
+    return '<div>📞 関空から連絡あり：'+time+'<br><span style="font-size:20px">🚌 あと'+remaining+'便</span></div>';
+  }).join('<hr style="border:0;border-top:1px solid #ffd180;margin:8px 0">');
+}
 function refresh(){
 S.noService=S.noService||{};
 S.kixContact=S.kixContact||{};
@@ -1215,6 +1232,7 @@ for(let i=1;i<=59;i++){
     f.textContent='🚫 運行なし';
   }else if(f){f.remove();}
 }
+updateKixContactSummary();
 let done=Object.keys(S.done||{}).length;document.getElementById('pc').textContent=59-done;document.getElementById('dc').textContent=done;
 for(let i=1;i<=59;i++){let el=document.getElementById('bus-'+i),d=S.done[i];el.style.display=(tab==='done'?!!d:!d)?'block':'none';document.getElementById('actual-'+i).textContent=d?'✓ 到着タップ時刻 '+d:'';document.getElementById('memoFlag-'+i).textContent=S.memo[i]?'📝 メモあり':'';document.getElementById('arrive-'+i).textContent=d?'未到着に戻す':'到着'}
 let ha=document.getElementById('highwayActual'),hb=document.getElementById('highwayBtn'),hm=document.getElementById('highwayMemoFlag');
