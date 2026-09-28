@@ -918,7 +918,8 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <div class="section">予約・ツアー</div>
 <div class="box"><select id="etype"><option>予約バス</option><option>ツアーバス</option></select><input id="etime" type="time"><input id="ename" placeholder="会社名・団体名"><textarea id="enote" placeholder="メモ"></textarea><button class="save" onclick="addExtra()">＋追加</button></div><div id="extras"></div>
 </div>
-</main>
+<div style="margin:12px"><button class="action" type="button" onclick="openTicketGallery()" style="width:100%;padding:11px;font-weight:800">📷 今日の半券をまとめて確認</button></div>
+<dialog id="ticketGallery" style="width:min(92vw,520px);max-height:82vh;border:0;border-radius:14px;padding:16px"><h3>📷 半券写真一覧</h3><div id="ticketGalleryDate"></div><div id="ticketGalleryList"></div><button class="action" type="button" onclick="document.getElementById('ticketGallery').close()">閉じる</button></dialog></main>
 <dialog id="memo"><h3 id="mtitle">メモ</h3><textarea id="mtext"></textarea>
 <div style="margin:12px 0">
 <input id="ticketPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="saveTicketPhoto(this)">
@@ -1099,10 +1100,30 @@ async function hasTicketPhoto(t){
 async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else if(target==='limon')S.limonMemo=document.getElementById('mtext').value;else if(target==='kirakira123')S.kirakira123Memo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
 function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display=t==='pending'?'block':'none';refresh()}
 
+function ticketLabel(bus){
+ if(bus==='highway')return '11:00発 KR124便 キラキラ号';
+ if(bus==='limon')return '15:30着 LIMON Bus';
+ if(bus==='kirakira123')return '18:20着 KR123便 キラキラ号';
+ const c=document.getElementById('bus-'+bus);
+ if(!c)return bus+'便';
+ return (c.querySelector('.arrival')?.textContent||'').trim().replace(/\s+/g,' ')+'｜'+(c.querySelector('.route b')?.textContent||'').trim()+'｜'+bus+'便';
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function openTicketGallery(){
+ const dlg=document.getElementById('ticketGallery'),list=document.getElementById('ticketGalleryList');
+ document.getElementById('ticketGalleryDate').textContent=currentDate;list.textContent='読み込み中…';
+ if(!dlg.open)dlg.showModal();
+ try{
+  const snap=await db.collection('ticketPhotos').where('date','==',currentDate).get();
+  if(snap.empty){list.innerHTML='<p>この日の半券写真はまだないで📷</p>';return;}
+  const a=[];snap.forEach(d=>a.push(d.data()));a.sort((x,y)=>String(x.bus).localeCompare(String(y.bus),'ja',{numeric:true}));
+  list.innerHTML=a.map(x=>'<div style="border-top:1px solid #ddd;padding:12px 0"><div style="font-weight:800;margin-bottom:7px">'+esc(ticketLabel(x.bus))+'</div><img src="'+x.image+'" style="width:100%;max-height:360px;object-fit:contain;border-radius:10px;border:1px solid #ddd"></div>').join('');
+ }catch(e){console.error(e);list.textContent='半券写真を読み込めませんでした';}
+}
 function startPhotoRealtime(){
   if(photoUnsubscribe){photoUnsubscribe();photoUnsubscribe=null;}
   const d=currentDate;
-  photoUnsubscribe=db.collection('ticketPhotos').where('date','==',d).onSnapshot(()=>{if(currentDate===d)updatePhotoFlags()},e=>console.warn(e));
+  photoUnsubscribe=db.collection('ticketPhotos').where('date','==',d).onSnapshot(()=>{if(currentDate===d){updatePhotoFlags();const g=document.getElementById('ticketGallery');if(g&&g.open)openTicketGallery();}},e=>console.warn(e));
 }
 async function updatePhotoFlags(){
   try{
