@@ -1145,7 +1145,7 @@ async function hasTicketPhoto(t){
   try{return (await db.collection('ticketPhotos').doc(currentDate+'_'+String(t)).get()).exists}catch(e){return false}
 }
 async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else if(target==='limon')S.limonMemo=document.getElementById('mtext').value;else if(target==='kirakira123')S.kirakira123Memo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
-function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display=t==='pending'?'block':'none';refresh()}
+function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display='block';refresh();renderExtras()}
 
 function confirmCall(name,number){
   if(confirm(name+'\n'+number+'\n\n電話する？')){
@@ -1233,7 +1233,12 @@ for(let i=1;i<=59;i++){
   }else if(f){f.remove();}
 }
 updateKixContactSummary();
-let done=Object.keys(S.done||{}).length;document.getElementById('pc').textContent=59-done;document.getElementById('dc').textContent=done;
+let done=Object.keys(S.done||{}).length;
+let extraDone=(S.extras||[]).filter(x=>!!x.arrivedAt).length;
+let specialDone=(S.highway?1:0)+(S.limon?1:0)+(S.kirakira123?1:0);
+let extraPending=(S.extras||[]).length-extraDone;
+document.getElementById('pc').textContent=(59-done)+extraPending+(S.highway?0:1)+(S.limon?0:1)+(S.kirakira123?0:1);
+document.getElementById('dc').textContent=done+extraDone+specialDone;
 for(let i=1;i<=59;i++){let el=document.getElementById('bus-'+i),d=S.done[i];el.style.display=(tab==='done'?!!d:!d)?'block':'none';document.getElementById('actual-'+i).textContent=d?'✓ 到着タップ時刻 '+d:'';document.getElementById('memoFlag-'+i).textContent=S.memo[i]?'📝 メモあり':'';document.getElementById('arrive-'+i).textContent=d?'未到着に戻す':'到着'}
 let ha=document.getElementById('highwayActual'),hb=document.getElementById('highwayBtn'),hm=document.getElementById('highwayMemoFlag');
 if(ha)ha.textContent=S.highway?'✓ 出発タップ時刻 '+S.highway:'';
@@ -1247,6 +1252,16 @@ let ka=document.getElementById('kirakira123Actual'),kb=document.getElementById('
 if(ka)ka.textContent=S.kirakira123?'✓ 到着タップ時刻 '+S.kirakira123:'';
 if(kb)kb.textContent=S.kirakira123?'到着を取り消す':'到着';
 if(km)km.textContent=S.kirakira123Memo?'📝 メモあり':'';
+const specialStates=[
+  ['highwayCard',!!S.highway],
+  ['limonCard',!!S.limon],
+  ['kirakira123Card',!!S.kirakira123]
+];
+specialStates.forEach(([id,isDone])=>{
+  const el=document.getElementById(id);
+  if(el)el.style.display=(tab==='done'?isDone:!isDone)?'block':'none';
+});
+
 }
 async function addExtra(){let t=document.getElementById('etime').value,n=document.getElementById('ename').value.trim();if(!t||!n)return alert('時刻と会社名を入れてな');S.extras.push({type:document.getElementById('etype').value,time:t,name:n,note:document.getElementById('enote').value,arrivedAt:null});renderExtras();await save()}
 async function toggleExtra(i){
@@ -1264,7 +1279,9 @@ async function deleteExtra(i){
 
 updatePhotoFlags();}
 function renderExtras(){
-  document.getElementById('extras').innerHTML=(S.extras||[]).map((x,i)=>
+  document.getElementById('extras').innerHTML=(S.extras||[]).map((x,i)=>{
+    if((tab==='done')!==!!x.arrivedAt)return '';
+    return 
     '<div class="card">'+
       '<div class="arrival">'+x.time+' <small>'+x.type+'</small></div>'+
       '<div class="route"><b>'+x.name+'</b><br>'+(x.note||'')+'</div>'+
@@ -1273,8 +1290,8 @@ function renderExtras(){
         '<button class="action arrive" onclick="toggleExtra('+i+')">'+(x.arrivedAt?'未到着に戻す':'到着')+'</button>'+
         '<button class="action" onclick="deleteExtra('+i+')">削除</button>'+
       '</div>'+
-    '</div>'
-  ).join('');
+    '</div>';
+  }).join('');
 }
 
 const STAFF_EMAIL='respaire.limousine.bus@gmail.com';
