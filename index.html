@@ -919,7 +919,25 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <div class="box"><select id="etype"><option>予約バス</option><option>ツアーバス</option></select><input id="etime" type="time"><input id="ename" placeholder="会社名・団体名"><textarea id="enote" placeholder="メモ"></textarea><button class="save" onclick="addExtra()">＋追加</button></div><div id="extras"></div>
 </div>
 <div style="margin:12px"><button class="action" type="button" onclick="openTicketGallery()" style="width:100%;padding:11px;font-weight:800">📷 今日の半券をまとめて確認</button></div>
-<dialog id="ticketGallery" style="width:min(92vw,520px);max-height:82vh;border:0;border-radius:14px;padding:16px"><h3>📷 半券写真一覧</h3><div id="ticketGalleryDate"></div><div id="ticketGalleryList"></div><button class="action" type="button" onclick="document.getElementById('ticketGallery').close()">閉じる</button></dialog></main>
+<dialog id="ticketGallery" style="width:min(92vw,520px);max-height:82vh;border:0;border-radius:14px;padding:16px"><h3>📷 半券写真一覧</h3><div id="ticketGalleryDate"></div><div id="ticketGalleryList"></div><button class="action" type="button" onclick="document.getElementById('ticketGallery').close()">閉じる</button></dialog>
+<div style="margin:12px">
+  <button class="action" type="button" onclick="document.getElementById('emergencyContacts').showModal()" style="width:100%;padding:11px;font-weight:800">🆘 緊急連絡先</button>
+</div>
+<dialog id="emergencyContacts" style="width:min(92vw,520px);border:0;border-radius:14px;padding:16px">
+  <h3 style="margin-top:0">🆘 緊急連絡先</h3>
+  <div style="display:grid;gap:10px">
+    <div style="font-weight:800;margin:4px 0 0">🏢 会社連絡先</div>
+    <button class="action" type="button" onclick="confirmCall('寺口さん','080-7214-8453')">📞 寺口さん<br>080-7214-8453</button>
+    <button class="action" type="button" onclick="confirmCall('社長（藤沢さん）','090-3238-5471')">📞 社長（藤沢さん）<br>090-3238-5471</button>
+    <div style="font-weight:800;margin:8px 0 0">🚌 バス会社</div>
+
+    <button class="action" type="button" onclick="confirmCall('阪急観光バス','06-6844-1124')">📞 阪急観光バス<br>06-6844-1124</button>
+    <button class="action" type="button" onclick="confirmCall('阪神バス','06-6416-1351')">📞 阪神バス<br>06-6416-1351</button>
+    <button class="action" type="button" onclick="confirmCall('関西空港交通','072-461-1374')">📞 関西空港交通<br>072-461-1374</button>
+  </div>
+  <div style="margin-top:14px"><button class="action" type="button" onclick="document.getElementById('emergencyContacts').close()">閉じる</button></div>
+</dialog>
+</main>
 <dialog id="memo"><h3 id="mtitle">メモ</h3><textarea id="mtext"></textarea>
 <div style="margin:12px 0">
 <input id="ticketPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="saveTicketPhoto(this)">
@@ -1100,6 +1118,11 @@ async function hasTicketPhoto(t){
 async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else if(target==='limon')S.limonMemo=document.getElementById('mtext').value;else if(target==='kirakira123')S.kirakira123Memo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
 function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display=t==='pending'?'block':'none';refresh()}
 
+function confirmCall(name,number){
+  if(confirm(name+'\n'+number+'\n\n電話する？')){
+    window.location.href='tel:'+number.replace(/-/g,'');
+  }
+}
 function ticketLabel(bus){
  if(bus==='highway')return '11:00発 KR124便 キラキラ号';
  if(bus==='limon')return '15:30着 LIMON Bus';
