@@ -68,6 +68,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
       <div id="dutyHomeState" style="margin-bottom:18px"></div>
       <button id="startDutyBtn" type="button" onclick="startDuty()" style="width:100%;padding:16px;border:0;border-radius:12px;font-size:20px;font-weight:900;background:#2e7d32;color:white">▶️ 業務開始</button>
       <button id="resumeDutyBtn" type="button" onclick="showWorkScreen()" style="display:none;width:100%;padding:16px;border:0;border-radius:12px;font-size:18px;font-weight:900;background:#1976d2;color:white">🚌 業務画面を開く</button>
+      <button id="viewTodayBtn" type="button" onclick="viewTodayRecord()" style="display:none;width:100%;margin-top:10px;padding:16px;border:0;border-radius:12px;font-size:18px;font-weight:900;background:#455a64;color:white">📋 今日の記録を見る</button>
     </div>
   </section>
 <div id="workScreen">
@@ -1353,6 +1354,7 @@ async function loadDutyHome(){
   const started=!!dutyState.startedAt, ended=!!dutyState.endedAt;
   document.getElementById('startDutyBtn').style.display=!started?'block':'none';
   document.getElementById('resumeDutyBtn').style.display=started&&!ended?'block':'none';
+  document.getElementById('viewTodayBtn').style.display=ended?'block':'none';
   document.getElementById('dutyHomeState').innerHTML=ended
     ?'✅ 本日の業務は終了しました<br>終了 '+fmtDutyTime(dutyState.endedAt)
     :started?'🟢 業務中<br>開始 '+fmtDutyTime(dutyState.startedAt)
@@ -1370,6 +1372,13 @@ function showWorkScreen(){
   document.getElementById('dutyEndScreen').style.display='none';
   const b=document.getElementById('dutyBar');
   if(b)b.textContent='🟢 業務中　開始 '+fmtDutyTime(dutyState.startedAt);
+}
+function viewTodayRecord(){
+  document.getElementById('dutyHome').style.display='none';
+  document.getElementById('workScreen').style.display='block';
+  document.getElementById('dutyEndScreen').style.display='none';
+  const b=document.getElementById('dutyBar');
+  if(b)b.textContent='📋 本日の業務記録　終了 '+fmtDutyTime(dutyState.endedAt);
 }
 async function startDuty(){
   try{
