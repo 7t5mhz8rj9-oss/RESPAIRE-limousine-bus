@@ -56,14 +56,14 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 </div>
 <div id="appRoot">
 
-<header><h1>🚌 レスパイア バス管理</h1><div class="tabs">
+<header style="position:relative"><h1>🚌 レスパイア バス管理</h1><div class="tabs">
 <button id="pbtn" class="active" onclick="showTab('pending')">未到着 <span id="pc">59</span></button>
 <button id="dbtn" onclick="showTab('done')">到着済み <span id="dc">0</span></button></div>
 <div style="display:flex;gap:7px;align-items:center;margin-top:9px">
 <button class="action" onclick="changeDay(-1)">◀ 前日</button>
 <input id="workDate" type="date" onchange="switchDate(this.value)" style="flex:1;margin:0;text-align:center;font-weight:800">
 <button class="action" onclick="changeDay(1)">翌日 ▶</button>
-</div></header>
+</div><button type="button" onclick="staffLogout()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);padding:7px 9px;border:0;border-radius:9px;background:#fff;color:#333;font-weight:700;font-size:12px">🚪ログアウト</button></header>
 <main>
 <div class="box" style="font-size:13px"><b>📅 日別保存</b><br>到着時刻・メモ・キラキラ号・予約/ツアーバスは、上の日付ごとにクラウドへ保存されます。</div>
 <div class="section">リムジンバス　59便</div>
@@ -1190,6 +1190,18 @@ async function startStaffApp(user){
   startPhotoRealtime();
   await loadDay();
   applyCompanyColors();
+}
+
+async function staffLogout(){
+  if(!confirm('ログアウトする？'))return;
+  try{
+    if(dayUnsubscribe){dayUnsubscribe();dayUnsubscribe=null;}
+    if(photoUnsubscribe){photoUnsubscribe();photoUnsubscribe=null;}
+    await auth.signOut();
+    document.getElementById('appRoot').style.display='none';
+    document.getElementById('loginScreen').style.display='block';
+    document.getElementById('loginPassword').value='';
+  }catch(e){fail(e)}
 }
 
 async function staffLogin(){
