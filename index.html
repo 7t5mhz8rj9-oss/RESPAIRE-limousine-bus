@@ -54,7 +54,18 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
   <button type="button" onclick="staffLogin()">ログイン</button>
   <div id="loginError"></div>
 </div>
-<div id="appRoot">
+
+<div id="appRoot" style="display:none">
+  <section id="dutyHome" style="display:none;min-height:100vh;padding:24px 16px;text-align:center">
+    <div style="max-width:520px;margin:45px auto;background:#fff;border-radius:18px;padding:24px;box-shadow:0 4px 20px #0002">
+      <div style="font-size:26px;font-weight:900">🚌 レスパイア バス管理</div>
+      <div id="dutyHomeDate" style="margin:10px 0 24px;font-weight:700"></div>
+      <div id="dutyHomeState" style="margin-bottom:18px"></div>
+      <button id="startDutyBtn" type="button" onclick="startDuty()" style="width:100%;padding:16px;border:0;border-radius:12px;font-size:20px;font-weight:900;background:#2e7d32;color:white">▶️ 業務開始</button>
+      <button id="resumeDutyBtn" type="button" onclick="showWorkScreen()" style="display:none;width:100%;padding:16px;border:0;border-radius:12px;font-size:18px;font-weight:900;background:#1976d2;color:white">🚌 業務画面を開く</button>
+    </div>
+  </section>
+<div id="workScreen">
 
 <header style="position:relative"><h1>🚌 レスパイア バス管理</h1><div class="tabs">
 <button id="pbtn" class="active" onclick="showTab('pending')">未到着 <span id="pc">59</span></button>
@@ -65,6 +76,9 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <button class="action" onclick="changeDay(1)">翌日 ▶</button>
 </div><button type="button" onclick="staffLogout()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);padding:7px 9px;border:0;border-radius:9px;background:#fff;color:#333;font-weight:700;font-size:12px">🚪ログアウト</button></header>
 <main>
+<div id="dutyBar" style="margin:10px 12px;padding:10px;border-radius:10px;background:#e8f5e9;font-weight:800;text-align:center">🟢 業務中</div>
+<div style="margin:10px 12px"><button type="button" class="action" onclick="openDutyEnd()" style="width:100%;padding:11px;font-weight:800">⏹ 業務終了画面へ</button></div>
+
 <div class="box" style="font-size:13px"><b>📅 日別保存</b><br>到着時刻・メモ・キラキラ号・予約/ツアーバスは、上の日付ごとにクラウドへ保存されます。</div>
 <div class="section">リムジンバス　59便</div>
 <div id="busList">
@@ -946,6 +960,15 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <div id="ticketPhotoStatus" style="font-size:13px;margin-top:8px"></div>
 <img id="ticketPhotoPreview" alt="半券写真" style="display:none;width:100%;max-height:320px;object-fit:contain;margin-top:8px;border-radius:10px;border:1px solid #ddd">
 </div>
+<section id="dutyEndScreen" style="display:none;min-height:100vh;padding:20px 14px">
+ <div style="max-width:520px;margin:20px auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 4px 20px #0002">
+  <h2 style="margin-top:0">⏹ 業務終了確認</h2>
+  <div id="dutySummary" style="line-height:2;margin:16px 0"></div>
+  <button type="button" onclick="finishDuty()" style="width:100%;padding:15px;border:0;border-radius:12px;font-size:18px;font-weight:900;background:#c62828;color:#fff">⏹ 業務終了</button>
+  <button type="button" class="action" onclick="showWorkScreen()" style="width:100%;margin-top:10px;padding:12px">← 業務画面に戻る</button>
+ </div>
+</section>
+</div>
 <button class="save" onclick="saveMemo()">保存</button> <button class="action" onclick="document.getElementById('memo').close()">閉じる</button></dialog>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js"></script>
@@ -1232,7 +1255,7 @@ async function startStaffApp(user){
   showStatus('🔐 スタッフ認証OK・Firebase接続中…');
   await seedTimetable();
   startPhotoRealtime();
-  await loadDay();
+  await loadDay(); await loadDutyHome();
   applyCompanyColors();
 }
 
@@ -1248,6 +1271,69 @@ async function staffLogout(){
   }catch(e){fail(e)}
 }
 
+
+let dutyState={startedAt:null,endedAt:null};
+function dutyRef(){return db.collection('dutySessions').doc(currentDate)}
+function fmtDutyTime(v){
+  if(!v)return '';
+  const d=v.toDate?v.toDate():new Date(v);
+  return d.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+}
+async function loadDutyHome(){
+  document.getElementById('dutyHomeDate').textContent=currentDate;
+  try{
+    const s=await dutyRef().get(); dutyState=s.exists?s.data():{startedAt:null,endedAt:null};
+  }catch(e){dutyState={startedAt:null,endedAt:null}}
+  const started=!!dutyState.startedAt, ended=!!dutyState.endedAt;
+  document.getElementById('startDutyBtn').style.display=!started?'block':'none';
+  document.getElementById('resumeDutyBtn').style.display=started&&!ended?'block':'none';
+  document.getElementById('dutyHomeState').innerHTML=ended
+    ?'✅ 本日の業務は終了しました<br>終了 '+fmtDutyTime(dutyState.endedAt)
+    :started?'🟢 業務中<br>開始 '+fmtDutyTime(dutyState.startedAt)
+    :'業務開始前';
+  showDutyHome();
+}
+function showDutyHome(){
+  document.getElementById('dutyHome').style.display='block';
+  document.getElementById('workScreen').style.display='none';
+  document.getElementById('dutyEndScreen').style.display='none';
+}
+function showWorkScreen(){
+  document.getElementById('dutyHome').style.display='none';
+  document.getElementById('workScreen').style.display='block';
+  document.getElementById('dutyEndScreen').style.display='none';
+  const b=document.getElementById('dutyBar');
+  if(b)b.textContent='🟢 業務中　開始 '+fmtDutyTime(dutyState.startedAt);
+}
+async function startDuty(){
+  try{
+    const ref=dutyRef(), s=await ref.get();
+    if(s.exists && s.data().startedAt && !s.data().endedAt){dutyState=s.data();showWorkScreen();return;}
+    const now=firebase.firestore.FieldValue.serverTimestamp();
+    await ref.set({date:currentDate,startedAt:now,endedAt:null},{merge:true});
+    const fresh=await ref.get(); dutyState=fresh.data(); showWorkScreen();
+  }catch(e){fail(e)}
+}
+function openDutyEnd(){
+  let done=0,no=0;
+  if(S&&S.done)done=Object.values(S.done).filter(Boolean).length;
+  if(S&&S.noService)no=Object.values(S.noService).filter(Boolean).length;
+  const total=59, pending=Math.max(0,total-done-no);
+  document.getElementById('dutySummary').innerHTML=
+    '📅 '+currentDate+'<br>🕐 開始 '+fmtDutyTime(dutyState.startedAt)+'<br>'+
+    '✅ 到着済み '+done+'便<br>⏳ 未到着 '+pending+'便<br>🚫 運行なし '+no+'便<br>'+
+    '📷 半券写真・メモは保存されたままです';
+  document.getElementById('dutyHome').style.display='none';
+  document.getElementById('workScreen').style.display='none';
+  document.getElementById('dutyEndScreen').style.display='block';
+}
+async function finishDuty(){
+  if(!confirm('今日の業務を終了する？'))return;
+  try{
+    await dutyRef().set({endedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    const s=await dutyRef().get(); dutyState=s.data(); await loadDutyHome();
+  }catch(e){fail(e)}
+}
 async function staffLogin(){
   const err=document.getElementById('loginError');
   const password=document.getElementById('loginPassword').value;
