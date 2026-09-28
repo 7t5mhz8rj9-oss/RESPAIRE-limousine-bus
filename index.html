@@ -960,6 +960,7 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 <div id="ticketPhotoStatus" style="font-size:13px;margin-top:8px"></div>
 <img id="ticketPhotoPreview" alt="半券写真" style="display:none;width:100%;max-height:320px;object-fit:contain;margin-top:8px;border-radius:10px;border:1px solid #ddd">
 </div>
+<button class="save" onclick="saveMemo()">保存</button> <button class="action" onclick="document.getElementById('memo').close()">閉じる</button></dialog>
 <section id="dutyEndScreen" style="display:none;min-height:100vh;padding:20px 14px">
  <div style="max-width:520px;margin:20px auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 4px 20px #0002">
   <h2 style="margin-top:0">⏹ 業務終了確認</h2>
@@ -969,7 +970,6 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
  </div>
 </section>
 </div>
-<button class="save" onclick="saveMemo()">保存</button> <button class="action" onclick="document.getElementById('memo').close()">閉じる</button></dialog>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth-compat.js"></script>
