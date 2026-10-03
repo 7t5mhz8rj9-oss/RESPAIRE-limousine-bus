@@ -53,12 +53,15 @@ dialog{border:0;border-radius:16px;width:min(92vw,500px)}dialog::backdrop{backgr
 
 .incidentBtn{background:#b71c1c!important;color:#fff!important}
 .incidentPanel{border:2px solid #ef9a9a;background:#fff8f8}
-#incidentForm,#incidentAuth,#incidentRecords{width:min(92vw,650px);max-height:85dvh;overflow:auto;border:0;border-radius:14px;padding:18px}
-#incidentForm label{display:block;margin-top:10px;font-weight:700}
-dialog::backdrop{background:#0007}
 .incidentRow{padding:12px 0;border-top:1px solid #eee}
 .incidentRow:first-child{border-top:0}
 .incidentStatus{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:900;background:#ffebee;color:#b71c1c}
+.tabs button{min-width:0;padding:11px 4px;font-size:13px;line-height:1.5}
+.statusFilters{display:flex;gap:8px;margin-top:10px}
+.statusFilters button{flex:1;padding:9px 5px;border:1px solid #cfd3d8;border-radius:10px;font-weight:800;background:white;color:#555}
+.statusFilters button.active{background:#e3f2fd;border-color:#1976d2;color:#0d47a1}
+header>button[onclick="staffLogout()"]{top:12px!important;transform:none!important}
+header h1{padding-right:88px}
 </style></head><body>
 <div id="loginScreen">
   <h2>🔐 スタッフログイン</h2>
@@ -78,39 +81,30 @@ dialog::backdrop{background:#0007}
       <button id="startDutyBtn" type="button" onclick="startDuty()" style="width:100%;padding:16px;border:0;border-radius:12px;font-size:20px;font-weight:900;background:#2e7d32;color:white">▶️ 業務開始</button>
       <button id="resumeDutyBtn" type="button" onclick="showWorkScreen()" style="display:none;width:100%;padding:16px;border:0;border-radius:12px;font-size:18px;font-weight:900;background:#1976d2;color:white">🚌 業務画面を開く</button>
       <button id="viewTodayBtn" type="button" onclick="viewTodayRecord()" style="display:none;width:100%;margin-top:10px;padding:16px;border:0;border-radius:12px;font-size:18px;font-weight:900;background:#455a64;color:white">📋 今日の記録を見る</button>
-      <div class="incidentPanel" style="margin-top:16px;padding:12px;border-radius:12px;text-align:left">
-        <b>🧳 荷物事故管理</b><div class="sub">取り違い・紛失・破損の登録と確認</div>
-        <div class="actions"><button class="action incidentBtn" type="button" onclick="openIncidentForm()">＋ 荷物事故を登録</button><button class="action" type="button" onclick="openIncidentRecords()">🔐 事故記録を見る</button></div>
-      </div><div class="sub" style="margin-top:10px">荷物事故機能追加版 v2</div>
     </div>
   </section>
 <div id="workScreen">
 
 <header style="position:relative"><h1>🚌 レスパイア バス管理</h1><div class="tabs">
-<button id="pbtn" class="active" onclick="showTab('pending')">未到着 <span id="pc">59</span></button>
-<button id="dbtn" onclick="showTab('done')">到着済み <span id="dc">0</span></button></div>
+<button id="limousineTab" class="active" type="button" onclick="showCategory('limousine')" aria-pressed="true">🚌 リムジンバス</button>
+<button id="highwayTab" type="button" onclick="showCategory('highway')" aria-pressed="false">🚍 高速バス</button>
+<button id="extrasTab" type="button" onclick="showCategory('extras')" aria-pressed="false">🧳 予約・ツアー</button></div>
+<div class="statusFilters" aria-label="到着状況">
+<button id="pbtn" class="active" type="button" onclick="showTab('pending')"><span id="pendingLabel">未到着</span> <span id="pc">59</span></button>
+<button id="dbtn" type="button" onclick="showTab('done')"><span id="doneLabel">到着済み</span> <span id="dc">0</span></button></div>
 <div style="display:flex;gap:7px;align-items:center;margin-top:9px">
 <button class="action" onclick="changeDay(-1)">◀ 前日</button>
 <input id="workDate" type="date" onchange="switchDate(this.value)" style="flex:1;margin:0;text-align:center;font-weight:800">
 <button class="action" onclick="changeDay(1)">翌日 ▶</button>
 </div><button type="button" onclick="staffLogout()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);padding:7px 9px;border:0;border-radius:9px;background:#fff;color:#333;font-weight:700;font-size:12px">🚪ログアウト</button></header>
 <main>
-<div id="incidentPanel" class="box incidentPanel">
-  <b>🧳 荷物事故管理</b><br>
-  <span class="sub">取り違い・紛失・破損などを記録します。個人情報を含むため、記録一覧は再認証が必要です。</span>
-  <div class="actions">
-    <button class="action incidentBtn" type="button" onclick="openIncidentForm()">＋ 荷物事故を登録</button>
-    <button class="action" type="button" onclick="openIncidentRecords()">🔐 事故記録を見る</button>
-  </div>
-</div>
-
-
 <div id="dutyBar" style="margin:10px 12px;padding:10px;border-radius:10px;background:#e8f5e9;font-weight:800;text-align:center">🟢 業務中</div>
 <div id="dutyEndAction" style="margin:10px 12px"><button type="button" class="action" onclick="openDutyEnd()" style="width:100%;padding:11px;font-weight:800">⏹ 業務終了画面へ</button></div>
 <div id="recordBackAction" style="display:none;margin:10px 12px"><button type="button" class="action" onclick="loadDutyHome()" style="width:100%;padding:11px;font-weight:800">← 終了画面に戻る</button></div>
 
 <div class="box" style="font-size:13px"><b>📅 日別保存</b><br>到着時刻・メモ・キラキラ号・予約/ツアーバスは、上の日付ごとにクラウドへ保存されます。</div>
 <div id="kixContactSummary" style="display:none;margin:10px 12px;padding:10px 12px;border-radius:12px;background:#fff8e1;border:2px solid #ffb300;font-weight:800"></div>
+<section id="limousinePanel">
 <div class="section">リムジンバス　59便</div>
 <div id="busList">
 <div class="card busTap" id="bus-1" onclick="cardTap(event,1)">
@@ -940,7 +934,9 @@ dialog::backdrop{background:#0007}
   <div class="actions"><button class="action arrive" id="arrive-59" onclick="event.stopPropagation();toggleBus(59)">到着</button><button class="action" onclick="event.stopPropagation();editMemo(59)">メモ</button><button class="action" onclick="event.stopPropagation();toggleNoService(59)">🚫 運行なし</button><button class="action kixContactBtn" onclick="event.stopPropagation();toggleKixContact(59)">📞 連絡あり</button></div>
 </div></div>
 
+</section>
 <div id="other">
+<section id="highwayPanel" style="display:none">
 <div class="section">高速バス</div>
 <div class="card" id="highwayCard" onclick="toggleHighway()">
 <div class="arrival">11:00 <small>発</small></div><div class="route"><b>KR124便　キラキラ号</b></div>
@@ -960,8 +956,11 @@ dialog::backdrop{background:#0007}
 <div class="actions"><button class="action arrive" id="kirakira123Btn" onclick="event.stopPropagation();toggleKirakira123()">到着</button>
 <button class="action" onclick="event.stopPropagation();editKirakira123Memo()">メモ</button></div>
 <div class="memoFlag" id="kirakira123MemoFlag"></div></div>
+</section>
+<section id="extrasPanel" style="display:none">
 <div class="section">予約・ツアー</div>
 <div class="box"><select id="etype"><option>予約バス</option><option>ツアーバス</option></select><input id="etime" type="time"><input id="ename" placeholder="会社名・団体名"><textarea id="enote" placeholder="メモ"></textarea><button class="save" onclick="addExtra()">＋追加</button></div><div id="extras"></div>
+</section>
 </div>
 <div style="margin:12px"><button class="action" type="button" onclick="openTicketGallery()" style="width:100%;padding:11px;font-weight:800">📷 今日の半券をまとめて確認</button></div>
 <dialog id="ticketGallery" style="width:min(92vw,520px);max-height:82vh;border:0;border-radius:14px;padding:16px"><h3>📷 半券写真一覧</h3><div id="ticketGalleryDate"></div><div id="ticketGalleryList"></div><button class="action" type="button" onclick="document.getElementById('ticketGallery').close()">閉じる</button></dialog>
@@ -984,26 +983,15 @@ dialog::backdrop{background:#0007}
 </dialog>
 </main>
 
-<dialog id="memo"><h3 id="mtitle">メモ</h3><textarea id="mtext"></textarea>
-<div style="margin:12px 0">
-<input id="ticketPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="saveTicketPhoto(this)">
-<button class="action" type="button" onclick="document.getElementById('ticketPhotoInput').click()">📷 半券を撮影</button>
-<button class="action" id="ticketPhotoDelete" type="button" onclick="deleteTicketPhoto()" style="display:none">写真を削除</button>
-<div id="ticketPhotoStatus" style="font-size:13px;margin-top:8px"></div>
-<img id="ticketPhotoPreview" alt="半券写真" style="display:none;width:100%;max-height:320px;object-fit:contain;margin-top:8px;border-radius:10px;border:1px solid #ddd">
+<div class="box incidentPanel">
+  <b>🧳 荷物事故管理</b><br>
+  <span class="sub">取り違い・紛失・破損などを記録します。個人情報を含むため、記録一覧は再認証が必要です。</span>
+  <div class="actions">
+    <button class="action incidentBtn" type="button" onclick="openIncidentForm()">＋ 荷物事故を登録</button>
+    <button class="action" type="button" onclick="openIncidentRecords()">🔐 事故記録を見る</button>
+  </div>
 </div>
-<button class="save" onclick="saveMemo()">保存</button> <button class="action" onclick="document.getElementById('memo').close()">閉じる</button></dialog>
 
-</div>
-<section id="dutyEndScreen" style="display:none;min-height:100vh;padding:20px 14px">
- <div style="max-width:520px;margin:20px auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 4px 20px #0002">
-  <h2 style="margin-top:0">⏹ 業務終了確認</h2>
-  <div id="dutySummary" style="line-height:2;margin:16px 0"></div>
-  <button type="button" onclick="finishDuty()" style="width:100%;padding:15px;border:0;border-radius:12px;font-size:18px;font-weight:900;background:#c62828;color:#fff">⏹ 業務終了</button>
-  <button type="button" class="action" onclick="showWorkScreen()" style="width:100%;margin-top:10px;padding:12px">← 業務画面に戻る</button>
- </div>
-</section>
-</div>
 <dialog id="incidentForm">
  <h3>🧳 荷物事故 登録</h3>
  <label>事故種別</label><select id="incidentType"><option>荷物の取り違い</option><option>荷物の紛失</option><option>荷物の破損</option><option>タグ・半券トラブル</option><option>その他</option></select>
@@ -1037,7 +1025,26 @@ dialog::backdrop{background:#0007}
  <button class="action" type="button" onclick="closeIncidentRecords()">閉じる</button>
 </dialog>
 
+<dialog id="memo"><h3 id="mtitle">メモ</h3><textarea id="mtext"></textarea>
+<div style="margin:12px 0">
+<input id="ticketPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="saveTicketPhoto(this)">
+<button class="action" type="button" onclick="document.getElementById('ticketPhotoInput').click()">📷 半券を撮影</button>
+<button class="action" id="ticketPhotoDelete" type="button" onclick="deleteTicketPhoto()" style="display:none">写真を削除</button>
+<div id="ticketPhotoStatus" style="font-size:13px;margin-top:8px"></div>
+<img id="ticketPhotoPreview" alt="半券写真" style="display:none;width:100%;max-height:320px;object-fit:contain;margin-top:8px;border-radius:10px;border:1px solid #ddd">
+</div>
+<button class="save" onclick="saveMemo()">保存</button> <button class="action" onclick="document.getElementById('memo').close()">閉じる</button></dialog>
 
+</div>
+<section id="dutyEndScreen" style="display:none;min-height:100vh;padding:20px 14px">
+ <div style="max-width:520px;margin:20px auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 4px 20px #0002">
+  <h2 style="margin-top:0">⏹ 業務終了確認</h2>
+  <div id="dutySummary" style="line-height:2;margin:16px 0"></div>
+  <button type="button" onclick="finishDuty()" style="width:100%;padding:15px;border:0;border-radius:12px;font-size:18px;font-weight:900;background:#c62828;color:#fff">⏹ 業務終了</button>
+  <button type="button" class="action" onclick="showWorkScreen()" style="width:100%;margin-top:10px;padding:12px">← 業務画面に戻る</button>
+ </div>
+</section>
+</div>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth-compat.js"></script>
@@ -1060,7 +1067,7 @@ const db = firebase.firestore();
 const KEY='respaire-daily-v1';
 const blank=()=>({done:{},memo:{},extras:[],highway:null,highwayMemo:'',limon:null,limonMemo:'',kirakira123:null,kirakira123Memo:''});
 const isoLocal=(d=new Date())=>{let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
-let currentDate=isoLocal(), S=blank(), tab='pending', target=null;
+let currentDate=isoLocal(), S=blank(), tab='pending', category='limousine', target=null;
 let photoUnsubscribe=null;
 const now=()=>new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
 
@@ -1207,7 +1214,31 @@ async function hasTicketPhoto(t){
   try{return (await db.collection('ticketPhotos').doc(currentDate+'_'+String(t)).get()).exists}catch(e){return false}
 }
 async function saveMemo(){if(target==='highway')S.highwayMemo=document.getElementById('mtext').value;else if(target==='limon')S.limonMemo=document.getElementById('mtext').value;else if(target==='kirakira123')S.kirakira123Memo=document.getElementById('mtext').value;else S.memo[target]=document.getElementById('mtext').value;document.getElementById('memo').close();refresh();await save()}
-function showTab(t){tab=t;document.getElementById('pbtn').classList.toggle('active',t==='pending');document.getElementById('dbtn').classList.toggle('active',t==='done');document.getElementById('other').style.display='block';refresh();renderExtras()}
+function showCategory(c){
+  if(!['limousine','highway','extras'].includes(c))return;
+  category=c;tab='pending';refresh();renderExtras();
+}
+function showTab(t){if(!['pending','done'].includes(t))return;tab=t;refresh();renderExtras()}
+function refreshCategoryNavigation(){
+  ['limousine','highway','extras'].forEach(c=>{
+    const active=category===c;
+    document.getElementById(c+'Panel').style.display=active?'block':'none';
+    const btn=document.getElementById(c+'Tab');
+    btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));
+  });
+  document.getElementById('kixContactSummary').style.display=category==='limousine'&&document.getElementById('kixContactSummary').textContent?'block':'none';
+  document.getElementById('pbtn').classList.toggle('active',tab==='pending');
+  document.getElementById('dbtn').classList.toggle('active',tab==='done');
+  document.getElementById('pendingLabel').textContent=category==='limousine'?'未到着':'未到着・未出発';
+  document.getElementById('doneLabel').textContent=category==='limousine'?'到着済み':'到着・出発済み';
+  const done=category==='limousine'?Object.values(S.done||{}).filter(Boolean).length:
+    category==='highway'?Number(!!S.highway)+Number(!!S.limon)+Number(!!S.kirakira123):
+    (S.extras||[]).filter(x=>!!x.arrivedAt||!!x.departedAt).length;
+  const total=category==='limousine'?59:category==='highway'?3:(S.extras||[]).length;
+  document.getElementById('pc').textContent=Math.max(0,total-done);
+  document.getElementById('dc').textContent=done;
+}
+
 
 function confirmCall(name,number){
   if(confirm(name+'\n'+number+'\n\n電話する？')){
@@ -1295,12 +1326,7 @@ for(let i=1;i<=59;i++){
   }else if(f){f.remove();}
 }
 updateKixContactSummary();
-let done=Object.keys(S.done||{}).length;
-let extraDone=(S.extras||[]).filter(x=>!!x.arrivedAt).length;
-let specialDone=(S.highway?1:0)+(S.limon?1:0)+(S.kirakira123?1:0);
-let extraPending=(S.extras||[]).length-extraDone;
-document.getElementById('pc').textContent=(59-done)+extraPending+(S.highway?0:1)+(S.limon?0:1)+(S.kirakira123?0:1);
-document.getElementById('dc').textContent=done+extraDone+specialDone;
+refreshCategoryNavigation();
 for(let i=1;i<=59;i++){let el=document.getElementById('bus-'+i),d=S.done[i];el.style.display=(tab==='done'?!!d:!d)?'block':'none';document.getElementById('actual-'+i).textContent=d?'✓ 到着タップ時刻 '+d:'';document.getElementById('memoFlag-'+i).textContent=S.memo[i]?'📝 メモあり':'';document.getElementById('arrive-'+i).textContent=d?'未到着に戻す':'到着'}
 let ha=document.getElementById('highwayActual'),hb=document.getElementById('highwayBtn'),hm=document.getElementById('highwayMemoFlag');
 if(ha)ha.textContent=S.highway?'✓ 出発タップ時刻 '+S.highway:'';
@@ -1323,14 +1349,14 @@ specialStates.forEach(([id,isDone])=>{
   const el=document.getElementById(id);
   if(el)el.style.display=(tab==='done'?isDone:!isDone)?'block':'none';
 });
-
+updatePhotoFlags();
 }
 async function addExtra(){
   const t=document.getElementById('etime').value;
   const n=document.getElementById('ename').value.trim();
   if(!t||!n)return alert('時刻と会社名を入れてな');
   S.extras=S.extras||[];
-  S.extras.push({type:document.getElementById('etype').value,time:t,name:n,note:document.getElementById('enote').value,arrivedAt:null});
+  S.extras.push({type:document.getElementById('etype').value,time:t,name:n,note:document.getElementById('enote').value,arrivedAt:null,departedAt:null});
   document.getElementById('etime').value='';
   document.getElementById('ename').value='';
   document.getElementById('enote').value='';
@@ -1340,27 +1366,35 @@ async function addExtra(){
 async function toggleExtra(i){
   if(!S.extras||!S.extras[i])return;
   S.extras[i].arrivedAt=S.extras[i].arrivedAt?null:now();
-  renderExtras();
+  renderExtras();refresh();
+  await save();
+}
+async function toggleExtraDeparture(i){
+  if(!S.extras||!S.extras[i])return;
+  S.extras[i].departedAt=S.extras[i].departedAt?null:now();
+  renderExtras();refresh();
   await save();
 }
 async function deleteExtra(i){
   if(!S.extras||!S.extras[i])return;
   if(!confirm('この予約・ツアーを削除する？'))return;
   S.extras.splice(i,1);
-  renderExtras();
+  renderExtras();refresh();
   await save();
 
 updatePhotoFlags();}
 function renderExtras(){
   const el=document.getElementById('extras'); if(!el)return;
   el.innerHTML=(S.extras||[]).map((x,i)=>{
-    if((tab==='done')!==!!x.arrivedAt)return '';
+    if((tab==='done')!==!!(x.arrivedAt||x.departedAt))return '';
     return '<div class="card">'+
-      '<div class="arrival">'+x.time+' <small>'+x.type+'</small></div>'+
-      '<div class="route"><b>'+x.name+'</b><br>'+(x.note||'')+'</div>'+
-      '<div class="actual">'+(x.arrivedAt?'✓ 到着タップ時刻 '+x.arrivedAt:'')+'</div>'+
+      '<div class="arrival">'+esc(x.time)+' <small>'+esc(x.type)+'</small></div>'+
+      '<div class="route"><b>'+esc(x.name)+'</b><br>'+esc(x.note||'')+'</div>'+
+      '<div class="actual">'+(x.arrivedAt?'✓ 到着タップ時刻 '+esc(x.arrivedAt):'')+'</div>'+
+      '<div class="actual">'+(x.departedAt?'✓ 出発タップ時刻 '+esc(x.departedAt):'')+'</div>'+
       '<div class="actions">'+
         '<button class="action arrive" onclick="toggleExtra('+i+')">'+(x.arrivedAt?'未到着に戻す':'到着')+'</button>'+
+        '<button class="action arrive" onclick="toggleExtraDeparture('+i+')">'+(x.departedAt?'出発を取り消す':'出発')+'</button>'+
         '<button class="action" onclick="deleteExtra('+i+')">削除</button>'+
       '</div>'+
     '</div>';
@@ -1495,30 +1529,12 @@ async function staffLogin(){
 // ===== 荷物事故管理 =====
 let incidentCache=[];
 let incidentAccessUntil=0;
-let incidentLockTimer=null;
-let incidentRequestVersion=0;
-function requireIncidentStaff(){
-  const user=auth.currentUser;
-  if(!user || user.isAnonymous || (user.email||'').toLowerCase()!==STAFF_EMAIL){alert('スタッフログインが必要です');return false;}
-  return true;
-}
-function lockIncidentAccess(){
-  incidentAccessUntil=0;incidentCache=[];incidentRequestVersion++;
-  clearTimeout(incidentLockTimer);incidentLockTimer=null;
-  document.getElementById('incidentRecordList').replaceChildren();
-  document.getElementById('incidentPassword').value='';
-  document.getElementById('incidentSearch').value='';
-  document.getElementById('incidentRecords').close();
-}
-
 function openIncidentForm(){
-  if(!requireIncidentStaff())return;
   const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
   document.getElementById('incidentDateTime').value=d.toISOString().slice(0,16);
   document.getElementById('incidentForm').showModal();
 }
 async function saveIncident(){
-  if(!requireIncidentStaff())return;
   const detail=document.getElementById('incidentDetail').value.trim();
   if(!detail)return alert('事故内容・経緯を入力してな');
   const data={
@@ -1547,7 +1563,6 @@ async function saveIncident(){
   }catch(e){fail(e);alert('事故記録を保存できませんでした');}
 }
 function openIncidentRecords(){
-  if(!requireIncidentStaff())return;
   if(Date.now()<incidentAccessUntil){loadIncidents();return;}
   document.getElementById('incidentPassword').value='';
   document.getElementById('incidentAuthError').textContent='';
@@ -1561,10 +1576,7 @@ async function verifyIncidentAccess(){
     const user=auth.currentUser;if(!user||!user.email)throw new Error('not logged in');
     const credential=firebase.auth.EmailAuthProvider.credential(user.email,p);
     await user.reauthenticateWithCredential(credential);
-    await user.getIdToken(true);
     incidentAccessUntil=Date.now()+5*60*1000;
-    clearTimeout(incidentLockTimer);
-    incidentLockTimer=setTimeout(lockIncidentAccess,5*60*1000);
     document.getElementById('incidentPassword').value='';document.getElementById('incidentAuth').close();
     await loadIncidents();
   }catch(e){err.textContent='パスワードが違うか、再認証できませんでした。';}
@@ -1574,9 +1586,7 @@ async function loadIncidents(){
   const dlg=document.getElementById('incidentRecords'),list=document.getElementById('incidentRecordList');
   if(!dlg.open)dlg.showModal();list.textContent='読み込み中…';
   try{
-    const requestVersion=incidentRequestVersion;
     const snap=await db.collection('baggageIncidents').orderBy('createdAt','desc').limit(100).get();
-    if(requestVersion!==incidentRequestVersion || Date.now()>=incidentAccessUntil)return;
     incidentCache=[];snap.forEach(d=>incidentCache.push({id:d.id,...d.data()}));renderIncidentRecords();
   }catch(e){console.error(e);list.textContent='事故記録を読み込めませんでした';}
 }
@@ -1593,7 +1603,7 @@ function renderIncidentRecords(){
     (x.address?'<div><b>住所：</b>'+esc(x.address)+'</div>':'')+
     '<div><b>荷物：</b>'+esc(x.bag||'-')+'</div><div><b>事故内容：</b>'+esc(x.detail||'-')+'</div><div><b>対応：</b>'+esc(x.action||'-')+'</div>'+
     '<div class="sub">担当：'+esc(x.staff||'-')+'</div>'+
-    '<div class="actions"><button class="action" onclick="changeIncidentStatus(\''+x.id+'\',\''+esc(x.status||'対応中').replace(/&#39;/g,'').replace(/&quot;/g,'').replace(/\\/g,'')+'\')">対応状況を変更</button><button class="action" onclick="deleteIncident(\''+x.id+'\')">削除</button></div></div>').join('');
+    '<div class="actions"><button class="action" onclick="changeIncidentStatus(\''+x.id+'\',\''+esc(x.status||'対応中')+'\')">対応状況を変更</button><button class="action" onclick="deleteIncident(\''+x.id+'\')">削除</button></div></div>').join('');
 }
 async function changeIncidentStatus(id,current){
   if(Date.now()>=incidentAccessUntil)return openIncidentRecords();
@@ -1605,12 +1615,9 @@ async function deleteIncident(id){
   if(!confirm('この事故記録を削除する？\n削除後は元に戻せません。'))return;
   try{await db.collection('baggageIncidents').doc(id).delete();await loadIncidents();}catch(e){fail(e)}
 }
-function closeIncidentRecords(){lockIncidentAccess();}
-document.getElementById('incidentRecords').addEventListener('close',()=>{if(incidentAccessUntil)lockIncidentAccess();});
+function closeIncidentRecords(){incidentAccessUntil=0;incidentCache=[];document.getElementById('incidentRecords').close();}
 
 auth.onAuthStateChanged(async user=>{
-  lockIncidentAccess();
-  if(!user){document.getElementById('incidentForm').close();document.getElementById('incidentAuth').close();}
   try{ await startStaffApp(user); }catch(e){ fail(e); }
 });
 </script></body></html>
