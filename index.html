@@ -1023,7 +1023,7 @@ header h1{padding-right:88px}
 <div class="memoFlag" id="kirakira123MemoFlag"></div></div>
 </section>
 <section id="extrasPanel" style="display:none">
-<div class="section">予約・ツアー</div>
+<div class="section">予約・ツアー <small>時刻順</small></div>
 <div class="box"><select id="etype"><option>予約バス</option><option>ツアーバス</option></select><input id="etime" type="time"><input id="ename" placeholder="会社名・団体名"><textarea id="enote" placeholder="メモ"></textarea><button class="save" onclick="addExtra()">＋追加</button></div><div id="extras"></div>
 </section>
 </div>
@@ -1482,7 +1482,11 @@ async function deleteExtra(i){
 updatePhotoFlags();}
 function renderExtras(){
   const el=document.getElementById('extras'); if(!el)return;
-  el.innerHTML=(S.extras||[]).map((x,i)=>{
+  // 表示だけ時刻順に並べる。元配列のindexを保持するので、到着・出発・削除も正しい項目に作用する。
+  const sortedExtras=(S.extras||[])
+    .map((x,i)=>({x,i}))
+    .sort((a,b)=>(a.x.time||'99:99').localeCompare(b.x.time||'99:99'));
+  el.innerHTML=sortedExtras.map(({x,i})=>{
     if((tab==='done')!==!!(x.arrivedAt||x.departedAt))return '';
     return '<div class="card">'+
       '<div class="arrival">'+esc(x.time)+' <small>'+esc(x.type)+'</small></div>'+
