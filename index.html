@@ -70,15 +70,15 @@ header h1{padding-right:88px}
 #lostForm,#lostRecords{max-height:86dvh;overflow:auto}button:disabled{opacity:.5}
 </style></head><body>
 <div id="loginScreen">
-  <h2>🔐 スタッフログイン</h2>
+  <h2>🔐 スタッフログイン（デモ）</h2>
   <div style="font-size:13px;color:#666;margin-bottom:10px">レスパイア バス管理</div>
   <input id="loginEmail" type="email" value="respaire.limousine.bus@gmail.com" autocomplete="username" readonly>
-  <input id="loginPassword" type="password" placeholder="パスワード" autocomplete="current-password">
+  <input id="loginPassword" type="password" placeholder="デモ用パスワード（任意の文字）" autocomplete="current-password">
   <button type="button" onclick="staffLogin()">ログイン</button>
-  <div id="loginError"></div>
+  <div style="font-size:12px;color:#7a4a00;margin-top:10px">社長向けデモ：任意のパスワードでログインできます。入力した内容はこの端末内にのみ保存され、クラウド共有されません。実際の個人情報は入力しないでください。</div><div id="loginError"></div>
 </div>
 
-<div id="appRoot" style="display:none">
+<div id="appRoot" style="display:none"><div style="background:#fff3cd;color:#684900;text-align:center;font-weight:800;padding:8px">🧪 デモ版｜データはこのブラウザ内のみ保存・共有なし</div>
   <section id="dutyHome" style="display:none;min-height:100vh;padding:24px 16px;text-align:center">
     <div style="max-width:520px;margin:45px auto;background:#fff;border-radius:18px;padding:24px;box-shadow:0 4px 20px #0002">
       <div style="font-size:26px;font-weight:900">🚌 レスパイア バス管理</div>
@@ -108,7 +108,7 @@ header h1{padding-right:88px}
 <div id="dutyEndAction" style="margin:10px 12px"><button type="button" class="action" onclick="openDutyEnd()" style="width:100%;padding:11px;font-weight:800">⏹ 業務終了画面へ</button></div>
 <div id="recordBackAction" style="display:none;margin:10px 12px"><button type="button" class="action" onclick="loadDutyHome()" style="width:100%;padding:11px;font-weight:800">← 終了画面に戻る</button></div>
 
-<div class="box" style="font-size:13px"><b>📅 日別保存</b><br>到着時刻・メモ・キラキラ号・予約/ツアーバスは、上の日付ごとにクラウドへ保存されます。</div>
+<div class="box" style="font-size:13px"><b>📅 日別保存</b><br>到着時刻・メモ・キラキラ号・予約/ツアーバスは、上の日付ごとにこのブラウザ内へ保存されます（クラウド接続なし）。</div>
 <div id="kixContactSummary" style="display:none;margin:10px 12px;padding:10px 12px;border-radius:12px;background:#fff8e1;border:2px solid #ffb300;font-weight:800"></div>
 <section id="limousinePanel">
 <div class="section">リムジンバス　59便</div>
@@ -1143,21 +1143,33 @@ header h1{padding-right:88px}
  </div>
 </section>
 </div>
-<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-auth-compat.js"></script>
+
+
+
 
 </div>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAkXlDYyrQBuQE4Q6CSnc05NyN4xeDxROI",
-  authDomain: "respaire-limousine-bus.firebaseapp.com",
-  projectId: "respaire-limousine-bus",
-  storageBucket: "respaire-limousine-bus.firebasestorage.app",
-  messagingSenderId: "529656163997",
-  appId: "1:529656163997:web:20cba5f7b5194cbf972e74",
-  measurementId: "G-ZB9D45394W"
-};
+/* DEMO ONLY: local browser storage; no Firebase network or real authentication. */
+(function(){
+const prefix='respaire-demo-v1:', listeners=new Set();
+const read=k=>{try{return JSON.parse(localStorage.getItem(prefix+k)||'null')}catch{return null}};
+const write=(k,v)=>{try{localStorage.setItem(prefix+k,JSON.stringify(v))}catch(e){console.warn('Demo storage full',e)};listeners.forEach(f=>{try{f()}catch(e){console.warn(e)}})};
+const clone=x=>x==null?x:JSON.parse(JSON.stringify(x));
+function snap(id,data){return {id,exists:data!==null,data:()=>clone(data)};}
+function querySnap(rows){return {empty:!rows.length,size:rows.length,docs:rows.map(([id,v])=>snap(id,v)),forEach(fn){this.docs.forEach(fn)}}}
+function col(name,filters=[],order=null,max=null){
+const rows=()=>{let arr=Object.keys(localStorage).filter(k=>k.startsWith(prefix+name+'/')).map(k=>[k.slice((prefix+name+'/').length),read(k.slice(prefix.length))]).filter(x=>x[1]!==null);for(const [field,op,val] of filters)arr=arr.filter(([,v])=>op==='=='&&v[field]===val);if(order)arr.sort((a,b)=>String(a[1][order[0]]||'').localeCompare(String(b[1][order[0]]||''))*(order[1]==='desc'?-1:1));return max?arr.slice(0,max):arr};
+return {doc(id){const k=name+'/'+id;return {id,async get(){return snap(id,read(k))},async set(v,opt){write(k,opt?.merge?{...(read(k)||{}),...clone(v)}:clone(v))},async update(v){write(k,{...(read(k)||{}),...clone(v)})},async delete(){localStorage.removeItem(prefix+k);listeners.forEach(f=>f())},onSnapshot(fn){const cb=()=>fn(snap(id,read(k)));listeners.add(cb);queueMicrotask(cb);return ()=>listeners.delete(cb)}}},async add(v){const id='demo_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);await this.doc(id).set(v);return {id}},where(a,b,c){return col(name,[...filters,[a,b,c]],order,max)},orderBy(a,b='asc'){return col(name,filters,[a,b],max)},limit(n){return col(name,filters,order,n)},startAfter(){return this},async get(){return querySnap(rows())},onSnapshot(fn){const cb=()=>fn(querySnap(rows()));listeners.add(cb);queueMicrotask(cb);return ()=>listeners.delete(cb)}}}
+}
+let authListener=null,user=null;
+const authObj={currentUser:null,onAuthStateChanged(fn){authListener=fn;queueMicrotask(()=>fn(user));return ()=>authListener=null},async signInWithEmailAndPassword(email,password){if(!password)throw Error('Enter demo password');user={email,isAnonymous:false,reauthenticateWithCredential:async()=>({user})};authObj.currentUser=user;if(authListener)await authListener(user);return {user}},async signOut(){user=null;authObj.currentUser=null;if(authListener)await authListener(null)},};
+function auth(){return authObj};auth.EmailAuthProvider={credential:(email,password)=>({email,password})};
+function firestore(){return {collection:name=>col(name)}};firestore.FieldValue={serverTimestamp:()=>new Date().toISOString()};
+window.firebase={initializeApp(){},auth,firestore};
+})();
+</script>
+<script>
+const firebaseConfig = {};
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -1219,7 +1231,7 @@ async function seedTimetable(){
 async function save(){
   try{
     await db.collection('dailyStates').doc(currentDate).set(S);
-    showStatus('☁️ Firebase保存OK');
+    showStatus('💾 デモ保存OK（この端末のみ）');
   }catch(e){fail(e); throw e;}
 }
 
@@ -1239,7 +1251,7 @@ async function loadDay(){
     dayUnsubscribe=ref.onSnapshot(s=>{
       if(currentDate!==listeningDate)return;
       if(s.exists)S=Object.assign(blank(),s.data());
-      showStatus('🟢 リアルタイム同期中');
+      showStatus('🧪 デモデータ読み込み済み（この端末のみ）');
       refresh();renderExtras();
     },e=>fail(e));
   }catch(e){fail(e)}
@@ -1514,7 +1526,7 @@ async function startStaffApp(user){
   }
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('appRoot').style.display='block';
-  showStatus('🔐 スタッフ認証OK・Firebase接続中…');
+  showStatus('🧪 デモログインOK');
   await seedTimetable();
   startPhotoRealtime();
   startLostRealtime();
